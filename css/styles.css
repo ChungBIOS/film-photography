@@ -1,6 +1,6 @@
 /* ==================================================
    Chiyuen Chung — Film Photography
-   Professional base styles for a clean photo portfolio
+   Professional styles with classic photo print look
    ================================================== */
 
 /* ---------- 1) Fonts ---------- */
@@ -12,14 +12,10 @@
   --bg: #ffffff;
   --fg: #111111;
   --muted: #666666;
-  --tile: #f4f4f4;
-  --border-color: #e6e6e6;
-  --shadow: 0 10px 28px rgba(0,0,0,.10);
 
   /* Layout */
   --page-max: 1200px;
-  --gap: 16px;
-  --radius: 12px;
+  --gap: 24px; /* wider gap for print spacing */
 
   /* Type */
   --font-body: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -31,9 +27,6 @@
     --bg:#0d0f12;
     --fg:#e7e7e7;
     --muted:#b8b8b8;
-    --tile:#15171a;
-    --border-color:#24262a;
-    --shadow: 0 16px 40px rgba(0,0,0,.45);
   }
 }
 
@@ -94,22 +87,22 @@ header p{
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 @media (min-width:1100px){
-  .grid{ gap:18px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .grid{ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 }
 
 .card{ display:block; text-decoration:none; color:inherit; }
 
-/* ---------- 6) Square tile (with aspect-ratio fallback) ---------- */
+/* ---------- 6) Square tile (print look) ---------- */
 @supports (aspect-ratio: 1){
   .square{
     aspect-ratio: 1/1;
     width:100%;
-    background:var(--tile);
-    border:1px solid var(--border-color);
-    border-radius:var(--radius);
+    background:#fff; /* always white background */
+    border:12px solid #fff; /* thick white border like a print */
+    border-radius:0; /* sharp corners */
     overflow:hidden;
     position:relative;
-    box-shadow:none;
+    box-shadow:0 8px 20px rgba(0,0,0,0.35); /* drop shadow for mounted look */
     transition: transform .18s ease, box-shadow .18s ease;
   }
 }
@@ -118,11 +111,12 @@ header p{
     position:relative;
     width:100%;
     padding-top:100%;
-    background:var(--tile);
-    border:1px solid var(--border-color);
-    border-radius:var(--radius);
+    background:#fff;
+    border:12px solid #fff;
+    border-radius:0;
     overflow:hidden;
     transition: transform .18s ease, box-shadow .18s ease;
+    box-shadow:0 8px 20px rgba(0,0,0,0.35);
   }
   .square > img{ position:absolute; inset:0; margin:auto; }
 }
@@ -137,12 +131,15 @@ header p{
   display:block;
 }
 
-.card:hover .square{ transform: translateY(-2px); box-shadow: var(--shadow); }
+.card:hover .square{
+  transform: translateY(-2px);
+  box-shadow:0 12px 26px rgba(0,0,0,0.45);
+}
 
 /* ---------- 7) Caption styles ---------- */
 .caption{
   display:block;
-  margin-top:8px;
+  margin-top:12px;
   text-align:center;
   color:var(--muted);
   font-family:var(--font-caption);
@@ -169,7 +166,7 @@ header p{
   letter-spacing:.15px;
   opacity:0;
   transition: opacity .2s ease;
-  pointer-events:none; /* let clicks go through to lightbox link */
+  pointer-events:none;
 }
 .card:hover .tile-overlay{ opacity:1; }
 
@@ -185,9 +182,3 @@ header p{
   text-shadow: 0 2px 20px rgba(0,0,0,.45);
   user-select:none;
 }
-
-/* ---------- 10) Utility / helpers ---------- */
-.hidden{ display:none !important; }
-.center{ text-align:center; }
-.mt-0{ margin-top:0; }
-.mb-0{ margin-bottom:0; }
