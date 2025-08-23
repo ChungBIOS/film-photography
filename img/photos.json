@@ -1,1 +1,14 @@
-
+[
+  {
+    "base": "sample",
+    "title": "Ally Pally 2025 — Leica III • Summitar 50mm • Kodak 200",
+    "overlay": "Ally Pally 2025 — Kodak 200",
+    "alt": "Ally Pally 2025 — Kodak ColorPlus 200"
+  },
+  {
+    "base": "ally",
+    "title": "Ally Pally 2025 — Kodak 200, frame 20",
+    "overlay": "Ally Pally 2025 — Kodak 200 (Frame 20)",
+    "alt": "Ally Pally 2025 — Kodak ColorPlus 200, frame 20"
+  }
+]
