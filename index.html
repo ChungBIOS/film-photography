@@ -20,38 +20,43 @@
     <p>Selections from my 35mm and medium-format cameras</p>
   </header>
 
-  <main class="grid">
-    <!-- Photo 1 -->
-    <a class="card" href="./img/sample-2560.jpg" aria-label="Open full-size image">
-      <div class="square">
-        <img
-          src="./img/sample-640.jpg"
-          srcset="./img/sample-640.jpg 640w, ./img/sample-1280.jpg 1280w, ./img/sample-2560.jpg 2560w"
-          sizes="(max-width: 900px) 90vw, 480px"
-          alt="Ally Pally 2025 — Kodak ColorPlus 200" loading="lazy" />
-        <div class="tile-overlay">Ally Pally 2025 — Kodak 200</div>
-      </div>
-      <span class="caption">Ally Pally 2025 — Leica III • Summitar 50mm • Kodak 200</span>
-    </a>
-
-    <!-- Photo 2 -->
-    <a class="card" href="./img/ally-2560.jpg">
-      <div class="square">
-        <img
-          src="./img/ally-640.jpg"
-          srcset="./img/ally-640.jpg 640w, ./img/ally-1280.jpg 1280w, ./img/ally-2560.jpg 2560w"
-          sizes="(max-width: 900px) 90vw, 480px"
-          alt="Ally Pally 2025 — Kodak ColorPlus 200, frame 20"
-          loading="lazy" />
-        <div class="tile-overlay">Ally Pally 2025 — Kodak 200 (Frame 20)</div>
-      </div>
-      <span class="caption">Ally Pally 2025 — Kodak 200, frame 20</span>
-    </a>
-  </main>
+ <main class="grid" id="gallery"></main>
 
   <footer>
     <p>© 2025 Chiyuen Chung</p>
   </footer>
+  <!-- Lightbox with × and Esc -->
+
+  <script>
+async function renderGallery(){
+  try {
+    const res = await fetch('/img/photos.json?v=' + Date.now());
+    const photos = await res.json();
+
+    const html = photos.map(p => `
+      <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
+        <div class="square">
+          <img
+            src="/img/${p.base}-640.jpg"
+            srcset="/img/${p.base}-640.jpg 640w,
+                    /img/${p.base}-1280.jpg 1280w,
+                    /img/${p.base}-2560.jpg 2560w"
+            sizes="(max-width: 900px) 90vw, 480px"
+            alt="${(p.alt||p.title||p.base).replace(/"/g,'&quot;')}" loading="lazy" />
+          ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+        </div>
+        <span class="caption">${p.title || p.base}</span>
+      </a>
+    `).join('');
+
+    document.getElementById('gallery').innerHTML = html;
+  } catch (e){
+    console.error('Failed to load photos.json', e);
+    document.getElementById('gallery').innerHTML = '<p class="center">Loading photos…</p>';
+  }
+}
+renderGallery();
+</script>
 
   <!-- Lightbox with × and Esc -->
  <script>
