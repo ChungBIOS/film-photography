@@ -1,15 +1,75 @@
-<main class="grid">
-  <a class="card" href="./img/sample-2560.jpg">
-    <div class="square">
-      <img
-        src="./img/sample-640.jpg"
-        srcset="./img/sample-640.jpg 640w,
-                ./img/sample-1280.jpg 1280w,
-                ./img/sample-2560.jpg 2560w"
-        sizes="(max-width: 900px) 90vw, 900px"
-        alt="Ally Pally 2025 — Kodak ColorPlus 200"
-        loading="lazy" />
-    </div>
-    <span class="caption">Ally Pally 2025 — Leica III • Summitar 50mm • Kodak 200</span>
-  </a>
-</main>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chiyuen Chung — Film Photography</title>
+  <meta name="description" content="Selections from my 35mm and medium-format cameras." />
+  <style>
+    :root { --pad:16px; --maxw:960px; --radius:12px; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.55;color:#111;background:#fff}
+    header,footer{padding:2rem var(--pad);text-align:center}
+    header h1{margin:0 0 .25rem;font-weight:700}
+    header p{margin:0;color:#666}
+    /* grid */
+    .grid{padding:0 var(--pad) 64px;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));max-width:var(--maxw);margin:0 auto}
+    .card{display:block;text-decoration:none;color:inherit}
+    .caption{display:block;margin-top:8px;text-align:center;color:#666}
+    /* square frame */
+    .square{position:relative;width:100%;padding-top:100%;background:#f3f3f3;border:1px solid #e6e6e6;border-radius:10px;overflow:hidden}
+    .square img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:100%;max-height:100%;display:block;height:auto;width:auto}
+    /* hover */
+    .square{transition:transform .15s ease, box-shadow .15s ease}
+    .card:hover .square{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.12)}
+    /* dark mode */
+    @media (prefers-color-scheme:dark){
+      body{background:#0d0f12;color:#e7e7e7}
+      header p,.caption{color:#b8b8b8}
+      .square{background:#15171a;border-color:#24262a}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Chiyuen Chung — Film Photography</h1>
+    <p>Selections from my 35mm and medium-format cameras</p>
+  </header>
+
+  <main class="grid">
+    <!-- Photo 1 -->
+    <a class="card" href="./img/sample-2560.jpg" aria-label="Open full-size image">
+      <div class="square">
+        <img
+          src="./img/sample-640.jpg"
+          srcset="./img/sample-640.jpg 640w,
+                  ./img/sample-1280.jpg 1280w,
+                  ./img/sample-2560.jpg 2560w"
+          sizes="(max-width: 900px) 90vw, 480px"
+          alt="Ally Pally 2025 — Kodak ColorPlus 200" loading="lazy" />
+      </div>
+      <span class="caption">Ally Pally 2025 — Leica III • Summitar 50mm • Kodak 200</span>
+    </a>
+  </main>
+
+  <footer>
+    <p>© 2025 Chiyuen Chung</p>
+  </footer>
+
+  <!-- Optional tiny lightbox: click anywhere to close -->
+  <script>
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a.card'); if(!a) return;
+      e.preventDefault();
+      const src = a.getAttribute('href');
+      const overlay = Object.assign(document.createElement('div'), {style:
+        'position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:9999;'});
+      const img = new Image(); img.src = src; img.alt = '';
+      img.style = 'max-width:95vw;max-height:95vh';
+      overlay.appendChild(img);
+      overlay.addEventListener('click', ()=>overlay.remove());
+      document.body.appendChild(overlay);
+    });
+  </script>
+</body>
+</html>
