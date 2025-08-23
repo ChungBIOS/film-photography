@@ -1,4 +1,6 @@
 name: Build photo manifest
+permissions:
+  contents: write
 
 on:
   push:
