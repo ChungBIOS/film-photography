@@ -1,6 +1,5 @@
 name: Build photos (resize + manifest)
 
-# Needed so the workflow can commit back to the repo
 permissions:
   contents: write
 
@@ -8,8 +7,12 @@ on:
   push:
     paths:
       - 'img/originals/*.{jpg,jpeg,JPG,JPEG}'
-      - '.github/workflows/build-manifest.yml'
+      - '.github/workflows/build-photos.yml'   # <-- use THIS workflow’s actual filename
   workflow_dispatch:
+
+concurrency:
+  group: build-photos
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -21,7 +24,9 @@ jobs:
           persist-credentials: true
 
       - name: Install ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
 
       - name: Ensure ImageMagick is available
         run: convert -version
@@ -36,11 +41,9 @@ jobs:
           for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
             [ -e "$f" ] || continue
             stem="$(basename "${f%.*}")"
-            
             for size in 640 1280 2560; do
               out="img/${stem}-${size}.jpg"
               if [[ ! -f "$out" ]]; then
-                # Keep aspect ratio, only downscale, strip EXIF
                 convert "$f" -auto-orient -strip -resize "${size}x${size}>" -quality 88 "$out"
                 echo "Wrote $out"
               fi
@@ -64,10 +67,27 @@ jobs:
           echo "" >> img/photos.json
           echo "]" >> img/photos.json
 
-      - name: Commit resized images + manifest
+      - name: Commit and push generated files safely
+        shell: bash
         run: |
-          git config user.name "actions-bot"
+          set -euo pipefail
+          git config user.name  "actions-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add img/*.jpg img/photos.json || true
-          git commit -m "Resize photos + update manifest" || echo "No changes"
-          git push
+
+          # Stay in sync to avoid non-fast-forward errors if a parallel run pushed
+          git fetch origin
+          git rebase origin/${GITHUB_REF_NAME}
+
+          git add img/*.jpg img/photos.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Resize photos + update manifest"
+
+          # First push; if something raced, rebase and retry once
+          if ! git push; then
+            git pull --rebase
+            git push
+          fi
