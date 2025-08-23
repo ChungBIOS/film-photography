@@ -41,7 +41,7 @@ jobs:
             for size in 640 1280 2560; do
               out="img/${base}-${size}.jpg"
               if [[ ! -f "$out" ]]; then
-                convert "$f" -auto-orient -strip -resize "${size}x${size}\>" -quality 88 "$out"
+                convert "$f" -auto-orient -strip -resize "${size}x${size}>" -quality 88 "$out"
                 echo "Wrote $out"
               fi
             done
