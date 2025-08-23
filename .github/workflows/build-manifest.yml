@@ -19,9 +19,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-          
-     - name: Install ImageMagick
-      run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Ensure ImageMagick is available
         run: convert -version
@@ -31,15 +31,16 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob nocaseglob
-          mkdir -p img
-          # Loop over originals and create three sizes if missing
+          mkdir -p img img/originals
+          
           for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
             [ -e "$f" ] || continue
             stem="$(basename "${f%.*}")"
+            
             for size in 640 1280 2560; do
               out="img/${stem}-${size}.jpg"
               if [[ ! -f "$out" ]]; then
-                # Keep aspect ratio, only downscale (no upscaling), strip EXIF
+                # Keep aspect ratio, only downscale, strip EXIF
                 convert "$f" -auto-orient -strip -resize "${size}x${size}>" -quality 88 "$out"
                 echo "Wrote $out"
               fi
@@ -50,35 +51,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          shopt -s nullglob
-          # Collect basenames that have all 3 sizes
           mapfile -t BASENAMES < <(ls img/*-640.jpg 2>/dev/null | sed 's@.*/@@;s@-640\.jpg$@@' | sort -u)
           echo "[" > img/photos.json
           first=1
           for b in "${BASENAMES[@]}"; do
             if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-              [[ $first -eq 0 ]] && echo "," >> img/photos.json
+              if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
               first=0
-              # Defaults for title/overlay/alt = basename; edit later if desired
               printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s"}' "$b" "$b" "$b" "$b" >> img/photos.json
             fi
           done
           echo "" >> img/photos.json
           echo "]" >> img/photos.json
-          echo "Generated img/photos.json:"
-          cat img/photos.json
 
       - name: Commit resized images + manifest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name "actions-bot"
+          git config user.email "actions@users.noreply.github.com"
           git add img/*.jpg img/photos.json || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-          git commit -m "chore: resize originals and update photos.json"
+          git commit -m "Resize photos + update manifest" || echo "No changes"
           git push
