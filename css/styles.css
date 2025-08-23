@@ -1,10 +1,193 @@
-/* Minimal, responsive gallery styles */
-:root { --pad: 16px; }
-* { box-sizing: border-box; }
-body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; line-height:1.5; }
-header, footer { padding: 24px var(--pad); text-align:center; }
-.grid { display:grid; gap: var(--pad); padding: 0 var(--pad) 48px; grid-template-columns: minmax(0, 1fr); place-items:center; }
-.card { display:block; text-decoration:none; color:inherit; max-width: 900px; width: 100%; }
-.card img { width:100%; height:auto; display:block; border-radius: 8px; }
-.caption { display:block; padding-top: 8px; font-size: 0.95rem; color:#555; text-align:center; }
-code { background:#f6f6f6; padding:2px 4px; border-radius:4px; }
+/* ==================================================
+   Chiyuen Chung — Film Photography
+   Professional base styles for a clean photo portfolio
+   ================================================== */
+
+/* ---------- 1) Fonts ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* ---------- 2) Design tokens ---------- */
+:root{
+  /* Colors */
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #666666;
+  --tile: #f4f4f4;
+  --border-color: #e6e6e6;
+  --shadow: 0 10px 28px rgba(0,0,0,.10);
+
+  /* Layout */
+  --page-max: 1200px;
+  --gap: 16px;
+  --radius: 12px;
+
+  /* Type */
+  --font-body: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-caption: 'Lora', Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0d0f12;
+    --fg:#e7e7e7;
+    --muted:#b8b8b8;
+    --tile:#15171a;
+    --border-color:#24262a;
+    --shadow: 0 16px 40px rgba(0,0,0,.45);
+  }
+}
+
+/* ---------- 3) Base ---------- */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+a{ color:inherit; }
+a:focus-visible, button:focus-visible{
+  outline:2px solid #7aa7ff;
+  outline-offset:2px;
+  border-radius:6px;
+}
+
+/* ---------- 4) Header & Footer ---------- */
+header, footer{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.35rem;
+  text-align:center;
+}
+header{ padding:44px 16px 24px; }
+footer{ padding:40px 16px; }
+
+header h1{
+  margin:0;
+  font-weight:600;
+  letter-spacing:.2px;
+  font-size: clamp(22px, 2.6vw, 36px);
+}
+header p{
+  margin:0;
+  color:var(--muted);
+  font-size:.98rem;
+}
+
+/* Subtle brand link for title */
+.brand{ text-decoration:none; border-bottom:1px solid transparent; }
+.brand:hover{ border-color: currentColor; }
+
+/* ---------- 5) Grid ---------- */
+.grid{
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 16px 72px;
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+@media (min-width:1100px){
+  .grid{ gap:18px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+
+.card{ display:block; text-decoration:none; color:inherit; }
+
+/* ---------- 6) Square tile (with aspect-ratio fallback) ---------- */
+@supports (aspect-ratio: 1){
+  .square{
+    aspect-ratio: 1/1;
+    width:100%;
+    background:var(--tile);
+    border:1px solid var(--border-color);
+    border-radius:var(--radius);
+    overflow:hidden;
+    position:relative;
+    box-shadow:none;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+}
+@supports not (aspect-ratio: 1){
+  .square{
+    position:relative;
+    width:100%;
+    padding-top:100%;
+    background:var(--tile);
+    border:1px solid var(--border-color);
+    border-radius:var(--radius);
+    overflow:hidden;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .square > img{ position:absolute; inset:0; margin:auto; }
+}
+
+.square img{
+  position:absolute;
+  top:50%; left:50%;
+  transform: translate(-50%, -50%);
+  max-width:100%;
+  max-height:100%;
+  width:auto; height:auto;
+  display:block;
+}
+
+.card:hover .square{ transform: translateY(-2px); box-shadow: var(--shadow); }
+
+/* ---------- 7) Caption styles ---------- */
+.caption{
+  display:block;
+  margin-top:8px;
+  text-align:center;
+  color:var(--muted);
+  font-family:var(--font-caption);
+  font-size:.95rem;
+  line-height:1.4;
+  letter-spacing:.15px;
+}
+
+/* Optional “gallery” style small-caps captions */
+.caption--smallcaps{
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: .8rem;
+  opacity: .95;
+}
+
+/* ---------- 8) Hover label overlay on tile (optional) ---------- */
+.tile-overlay{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:10px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.62) 100%);
+  color:#fff;
+  font-size:.9rem;
+  letter-spacing:.15px;
+  opacity:0;
+  transition: opacity .2s ease;
+  pointer-events:none; /* let clicks go through to lightbox link */
+}
+.card:hover .tile-overlay{ opacity:1; }
+
+/* ---------- 9) Lightbox (close button style only) ---------- */
+.lb-close{
+  position:absolute;
+  top:16px; right:20px;
+  font-size:2.2rem;
+  font-weight:700;
+  line-height:1;
+  color:#fff;
+  cursor:pointer;
+  text-shadow: 0 2px 20px rgba(0,0,0,.45);
+  user-select:none;
+}
+
+/* ---------- 10) Utility / helpers ---------- */
+.hidden{ display:none !important; }
+.center{ text-align:center; }
+.mt-0{ margin-top:0; }
+.mb-0{ margin-bottom:0; }
