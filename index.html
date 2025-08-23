@@ -5,34 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chiyuen Chung — Film Photography</title>
   <meta name="description" content="Selections from my 35mm and medium-format cameras." />
+
+  <!-- Pro baseline styling -->
   <style>
-    :root { --pad:16px; --maxw:960px; --radius:12px; }
+    /* --------- Design tokens --------- */
+    :root{
+      --page-max: 1200px;
+      --gap: 16px;
+      --radius: 12px;
+      --border: 1px solid #e6e6e6;
+      --bg: #fff;
+      --fg: #111;
+      --muted: #666;
+      --tile: #f4f4f4;
+      --shadow: 0 10px 28px rgba(0,0,0,.10);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0d0f12; --fg:#e7e7e7; --muted:#b8b8b8; --tile:#15171a; --border:1px solid #24262a;
+        --shadow: 0 16px 40px rgba(0,0,0,.45);
+      }
+    }
+
+    /* --------- Base --------- */
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.55;color:#111;background:#fff}
-    header,footer{padding:2rem var(--pad);text-align:center}
-    header h1{margin:0 0 .25rem;font-weight:700}
-    header p{margin:0;color:#666}
-    /* grid */
-    .grid{padding:0 var(--pad) 64px;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));max-width:var(--maxw);margin:0 auto}
-    .card{display:block;text-decoration:none;color:inherit}
-    .caption{display:block;margin-top:8px;text-align:center;color:#666}
-    /* square frame */
-    .square{position:relative;width:100%;padding-top:100%;background:#f3f3f3;border:1px solid #e6e6e6;border-radius:10px;overflow:hidden}
-    .square img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:100%;max-height:100%;display:block;height:auto;width:auto}
-    /* hover */
-    .square{transition:transform .15s ease, box-shadow .15s ease}
-    .card:hover .square{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.12)}
-    /* dark mode */
-    @media (prefers-color-scheme:dark){
-      body{background:#0d0f12;color:#e7e7e7}
-      header p,.caption{color:#b8b8b8}
-      .square{background:#15171a;border-color:#24262a}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height:1.55;
+    }
+
+    /* --------- Header / Footer --------- */
+    header, footer{ display:flex; flex-direction:column; align-items:center; gap:.35rem; text-align:center }
+    header{ padding:44px 16px 24px }
+    footer{ padding:40px 16px }
+    header h1{ margin:0; font-size: clamp(22px, 2.6vw, 36px); letter-spacing:.2px }
+    header p{ margin:0; color:var(--muted); font-size:.98rem }
+    .brand { text-decoration:none; color:inherit; border-bottom: 1px solid transparent }
+    .brand:hover { border-color: currentColor }
+
+    /* --------- Grid --------- */
+    .grid{
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 0 16px 72px;
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+    .card{ display:block; text-decoration:none; color:inherit }
+
+    /* --------- Square tile --------- */
+    @supports (aspect-ratio: 1){
+      .square{
+        aspect-ratio: 1/1; width:100%; background:var(--tile);
+        border: var(--border); border-radius: var(--radius); overflow:hidden;
+        position:relative; box-shadow:none; transition: transform .18s ease, box-shadow .18s ease;
+      }
+    }
+    @supports not (aspect-ratio: 1){
+      .square{
+        position:relative; width:100%; padding-top:100%; background:var(--tile);
+        border: var(--border); border-radius: var(--radius); overflow:hidden;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+      .square > img{ position:absolute; inset:0; margin:auto; }
+    }
+    .square img{
+      position:absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      max-width:100%; max-height:100%; height:auto; width:auto; display:block;
+    }
+    .card:hover .square{ transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    /* --------- Caption --------- */
+    .caption{
+      display:block; margin-top:8px; text-align:center; color:var(--muted);
+      font-size:.95rem; letter-spacing:.15px;
+    }
+
+    /* --------- Hover label on tile --------- */
+    .tile-overlay{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:10px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.62) 100%);
+      color:#fff; font-size:.9rem; letter-spacing:.15px;
+      opacity:0; transition: opacity .2s ease;
+    }
+    .card:hover .tile-overlay{ opacity:1; }
+
+    /* --------- Lightbox close (×) --------- */
+    .lb-close{
+      position:absolute; top:16px; right:20px;
+      font-size:2.2rem; font-weight:700; line-height:1; color:#fff; cursor:pointer;
+      text-shadow: 0 2px 20px rgba(0,0,0,.45);
+      user-select:none;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Chiyuen Chung — Film Photography</h1>
+    <a class="brand" href="/"><h1>Chiyuen Chung — Film Photography</h1></a>
     <p>Selections from my 35mm and medium-format cameras</p>
   </header>
 
@@ -42,25 +116,24 @@
       <div class="square">
         <img
           src="./img/sample-640.jpg"
-          srcset="./img/sample-640.jpg 640w,
-                  ./img/sample-1280.jpg 1280w,
-                  ./img/sample-2560.jpg 2560w"
+          srcset="./img/sample-640.jpg 640w, ./img/sample-1280.jpg 1280w, ./img/sample-2560.jpg 2560w"
           sizes="(max-width: 900px) 90vw, 480px"
           alt="Ally Pally 2025 — Kodak ColorPlus 200" loading="lazy" />
+        <div class="tile-overlay">Ally Pally 2025 — Kodak 200</div>
       </div>
       <span class="caption">Ally Pally 2025 — Leica III • Summitar 50mm • Kodak 200</span>
     </a>
+
     <!-- Photo 2 -->
     <a class="card" href="./img/ally-2560.jpg">
       <div class="square">
         <img
           src="./img/ally-640.jpg"
-          srcset="./img/ally-640.jpg 640w,
-                  ./img/ally-1280.jpg 1280w,
-                  ./img/ally-2560.jpg 2560w"
+          srcset="./img/ally-640.jpg 640w, ./img/ally-1280.jpg 1280w, ./img/ally-2560.jpg 2560w"
           sizes="(max-width: 900px) 90vw, 480px"
           alt="Ally Pally 2025 — Kodak ColorPlus 200, frame 20"
           loading="lazy" />
+        <div class="tile-overlay">Ally Pally 2025 — Kodak 200 (Frame 20)</div>
       </div>
       <span class="caption">Ally Pally 2025 — Kodak 200, frame 20</span>
     </a>
@@ -70,52 +143,43 @@
     <p>© 2025 Chiyuen Chung</p>
   </footer>
 
-  <!-- Optional tiny lightbox: click anywhere to close -->
- <script>
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a.card');
-    if (!a) return;
-    e.preventDefault();
+  <!-- Lightbox with × and Esc -->
+  <script>
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a.card');
+      if (!a) return;
+      e.preventDefault();
 
-    const src = a.getAttribute('href');
-    const overlay = document.createElement('div');
-    overlay.style = `
-      position:fixed;inset:0;background:rgba(0,0,0,.92);
-      display:flex;align-items:center;justify-content:center;
-      z-index:9999;
-    `;
+      const src = a.getAttribute('href');
+      const overlay = document.createElement('div');
+      overlay.style = `
+        position:fixed;inset:0;background:rgba(0,0,0,.92);
+        display:flex;align-items:center;justify-content:center;z-index:9999;
+      `;
 
-    // Close button (×)
-    const closeBtn = document.createElement('div');
-    closeBtn.textContent = '×';
-    closeBtn.style = `
-      position:absolute;top:20px;right:30px;
-      font-size:2.5rem;font-weight:bold;
-      color:white;cursor:pointer;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    `;
-    closeBtn.addEventListener('click', () => overlay.remove());
+      const closeBtn = document.createElement('div');
+      closeBtn.className = 'lb-close';
+      closeBtn.textContent = '×';
+      closeBtn.addEventListener('click', () => overlay.remove());
 
-    // Image
-    const img = new Image();
-    img.src = src;
-    img.alt = '';
-    img.style = 'max-width:95vw;max-height:95vh;cursor:zoom-out;';
-    img.addEventListener('click', () => overlay.remove());
+      const img = new Image();
+      img.src = src;
+      img.alt = '';
+      img.style = 'max-width:95vw;max-height:95vh;cursor:zoom-out;';
+      img.addEventListener('click', () => overlay.remove());
 
-    overlay.appendChild(closeBtn);
-    overlay.appendChild(img);
+      const escHandler = ev => {
+        if (ev.key === 'Escape') {
+          overlay.remove();
+          document.removeEventListener('keydown', escHandler);
+        }
+      };
+      document.addEventListener('keydown', escHandler);
 
-    // Esc key closes
-    document.addEventListener('keydown', function escHandler(ev) {
-      if (ev.key === 'Escape') {
-        overlay.remove();
-        document.removeEventListener('keydown', escHandler);
-      }
+      overlay.appendChild(closeBtn);
+      overlay.appendChild(img);
+      document.body.appendChild(overlay);
     });
-
-    document.body.appendChild(overlay);
-  });
-</script>
+  </script>
 </body>
 </html>
