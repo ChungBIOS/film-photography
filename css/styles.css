@@ -1,0 +1,10 @@
+/* Minimal, responsive gallery styles */
+:root { --pad: 16px; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; line-height:1.5; }
+header, footer { padding: 24px var(--pad); text-align:center; }
+.grid { display:grid; gap: var(--pad); padding: 0 var(--pad) 48px; grid-template-columns: minmax(0, 1fr); place-items:center; }
+.card { display:block; text-decoration:none; color:inherit; max-width: 900px; width: 100%; }
+.card img { width:100%; height:auto; display:block; border-radius: 8px; }
+.caption { display:block; padding-top: 8px; font-size: 0.95rem; color:#555; text-align:center; }
+code { background:#f6f6f6; padding:2px 4px; border-radius:4px; }
