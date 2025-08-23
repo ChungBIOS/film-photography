@@ -71,19 +71,51 @@
   </footer>
 
   <!-- Optional tiny lightbox: click anywhere to close -->
-  <script>
-    document.addEventListener('click', e => {
-      const a = e.target.closest('a.card'); if(!a) return;
-      e.preventDefault();
-      const src = a.getAttribute('href');
-      const overlay = Object.assign(document.createElement('div'), {style:
-        'position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:9999;'});
-      const img = new Image(); img.src = src; img.alt = '';
-      img.style = 'max-width:95vw;max-height:95vh';
-      overlay.appendChild(img);
-      overlay.addEventListener('click', ()=>overlay.remove());
-      document.body.appendChild(overlay);
+ <script>
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a.card');
+    if (!a) return;
+    e.preventDefault();
+
+    const src = a.getAttribute('href');
+    const overlay = document.createElement('div');
+    overlay.style = `
+      position:fixed;inset:0;background:rgba(0,0,0,.92);
+      display:flex;align-items:center;justify-content:center;
+      z-index:9999;
+    `;
+
+    // Close button (×)
+    const closeBtn = document.createElement('div');
+    closeBtn.textContent = '×';
+    closeBtn.style = `
+      position:absolute;top:20px;right:30px;
+      font-size:2.5rem;font-weight:bold;
+      color:white;cursor:pointer;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    `;
+    closeBtn.addEventListener('click', () => overlay.remove());
+
+    // Image
+    const img = new Image();
+    img.src = src;
+    img.alt = '';
+    img.style = 'max-width:95vw;max-height:95vh;cursor:zoom-out;';
+    img.addEventListener('click', () => overlay.remove());
+
+    overlay.appendChild(closeBtn);
+    overlay.appendChild(img);
+
+    // Esc key closes
+    document.addEventListener('keydown', function escHandler(ev) {
+      if (ev.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', escHandler);
+      }
     });
-  </script>
+
+    document.body.appendChild(overlay);
+  });
+</script>
 </body>
 </html>
