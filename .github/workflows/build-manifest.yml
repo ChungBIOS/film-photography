@@ -11,6 +11,7 @@ on:
       - 'img/*-1280.jpg'
       - 'img/*-2560.jpg'
       - '.github/workflows/build-manifest.yml'
+  workflow_dispatch:
 
 jobs:
   manifest:
