@@ -1,53 +1,43 @@
-name: Build photo manifest
+name: Build photos (resize + manifest)
+
+# Needed so the workflow can commit back to the repo
+permissions:
+  contents: write
 
 on:
   push:
     paths:
-      - 'img/originals/**'
+      - 'img/originals/*.{jpg,jpeg,JPG,JPEG}'
       - '.github/workflows/build-manifest.yml'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
-concurrency:
-  group: build-manifest
-  cancel-in-progress: false
-
 jobs:
-  manifest:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          persist-credentials: true
 
       - name: Ensure ImageMagick is available
-        shell: bash
-        run: |
-          set -e
-          if ! command -v convert >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y imagemagick
-          fi
-          convert -version
+        run: convert -version
 
       - name: Resize originals into 640/1280/2560
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob nocaseglob
-          mkdir -p img img/originals
-
+          mkdir -p img
+          # Loop over originals and create three sizes if missing
           for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
             [ -e "$f" ] || continue
             stem="$(basename "${f%.*}")"
             for size in 640 1280 2560; do
               out="img/${stem}-${size}.jpg"
               if [[ ! -f "$out" ]]; then
-                # Keep aspect ratio, only downscale, strip EXIF
-                convert "$f" -auto-orient -strip -resize "${size}x${size}\>" -quality 88 "$out"
+                # Keep aspect ratio, only downscale (no upscaling), strip EXIF
+                convert "$f" -auto-orient -strip -resize "${size}x${size}>" -quality 88 "$out"
                 echo "Wrote $out"
               fi
             done
@@ -58,32 +48,34 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
+          # Collect basenames that have all 3 sizes
           mapfile -t BASENAMES < <(ls img/*-640.jpg 2>/dev/null | sed 's@.*/@@;s@-640\.jpg$@@' | sort -u)
-
-          printf "[\n" > img/photos.json
+          echo "[" > img/photos.json
           first=1
           for b in "${BASENAMES[@]}"; do
             if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-              [[ $first -eq 1 ]] || printf ",\n" >> img/photos.json
+              [[ $first -eq 0 ]] && echo "," >> img/photos.json
               first=0
-              # Safe defaults; you can hand‑edit later
+              # Defaults for title/overlay/alt = basename; edit later if desired
               printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s"}' "$b" "$b" "$b" "$b" >> img/photos.json
             fi
           done
-          printf "\n]\n" >> img/photos.json
+          echo "" >> img/photos.json
+          echo "]" >> img/photos.json
           echo "Generated img/photos.json:"
           cat img/photos.json
 
       - name: Commit resized images + manifest
-        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add img
-          if git diff --staged --quiet; then
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add img/*.jpg img/photos.json || true
+          if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "chore: resized images & updated manifest"
-            git push
+            exit 0
           fi
+          git commit -m "chore: resize originals and update photos.json"
+          git push
