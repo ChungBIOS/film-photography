@@ -53,23 +53,44 @@ jobs:
             done
           done
 
+      # - name: Build img/photos.json from resized images
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+      #     mapfile -t BASENAMES < <(ls img/*-640.jpg 2>/dev/null | sed 's@.*/@@;s@-640\.jpg$@@' | sort -u)
+      #     echo "[" > img/photos.json
+      #     first=1
+      #     for b in "${BASENAMES[@]}"; do
+      #       if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
+      #         if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
+      #         first=0
+      #         printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s"}' "$b" "$b" "$b" "$b" >> img/photos.json
+      #       fi
+      #     done
+      #     echo "" >> img/photos.json
+      #     echo "]" >> img/photos.json
       - name: Build img/photos.json from resized images
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t BASENAMES < <(ls img/*-640.jpg 2>/dev/null | sed 's@.*/@@;s@-640\.jpg$@@' | sort -u)
           echo "[" > img/photos.json
           first=1
-          for b in "${BASENAMES[@]}"; do
+          # Iterate over files in commit date order (newest first)
+          for f in $(git log --diff-filter=A --pretty=format:%ad --date=short --name-only --reverse -- img/*-640.jpg \
+                      | paste - - \
+                      | sort -r \
+                      | awk '{print $2}'); do
+            b=$(basename "$f" -640.jpg)
             if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
+              DATE=$(git log -1 --format=%ad --date=short -- "img/${b}-640.jpg")
               if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
               first=0
-              printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s"}' "$b" "$b" "$b" "$b" >> img/photos.json
+              printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s"}' \
+                "$b" "$b" "$b" "$b" "$DATE" >> img/photos.json
             fi
           done
           echo "" >> img/photos.json
           echo "]" >> img/photos.json
-
       - name: Commit and push generated files safely
         shell: bash
         run: |
