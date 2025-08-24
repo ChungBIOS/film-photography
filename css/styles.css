@@ -50,6 +50,7 @@ a:focus-visible, button:focus-visible{
   border-radius:6px;
 }
 
+/* date pill next to titles */
 .date-badge{
   display:inline-block;
   margin-left:.4rem;
