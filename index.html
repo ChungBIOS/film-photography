@@ -32,22 +32,49 @@ async function renderGallery(){
   try {
     const res = await fetch('/img/photos.json?v=' + Date.now());
     const photos = await res.json();
+    // Newest first by commit date (YYYY-MM-DD sorts lexicographically)
+    photos.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    
+    const html = photos.map(p => {
+      const title = p.title || p.base;
+      const alt   = (p.alt || title || p.base).replace(/"/g,'&quot;');
+      const date  = p.date || ''; // e.g. "2025-08-24"
+    
+      return `
+        <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
+          <div class="square">
+            <img
+              src="/img/${p.base}-640.jpg"
+              srcset="/img/${p.base}-640.jpg 640w,
+                      /img/${p.base}-1280.jpg 1280w,
+                      /img/${p.base}-2560.jpg 2560w"
+              sizes="(max-width: 900px) 90vw, 480px"
+              alt="${alt}" loading="lazy" />
+            ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+          </div>
+          <span class="caption">
+            <span class="caption-title">${title}</span>
+            ${date ? `<time class="caption-date" datetime="${date}">${date}</time>` : ''}
+          </span>
+        </a>
+      `;
+    }).join('');
 
-    const html = photos.map(p => `
-      <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
-        <div class="square">
-          <img
-            src="/img/${p.base}-640.jpg"
-            srcset="/img/${p.base}-640.jpg 640w,
-                    /img/${p.base}-1280.jpg 1280w,
-                    /img/${p.base}-2560.jpg 2560w"
-            sizes="(max-width: 900px) 90vw, 480px"
-            alt="${(p.alt||p.title||p.base).replace(/"/g,'&quot;')}" loading="lazy" />
-          ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-        </div>
-        <span class="caption">${p.title || p.base}</span>
-      </a>
-    `).join('');
+    // const html = photos.map(p => `
+    //   <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
+    //     <div class="square">
+    //       <img
+    //         src="/img/${p.base}-640.jpg"
+    //         srcset="/img/${p.base}-640.jpg 640w,
+    //                 /img/${p.base}-1280.jpg 1280w,
+    //                 /img/${p.base}-2560.jpg 2560w"
+    //         sizes="(max-width: 900px) 90vw, 480px"
+    //         alt="${(p.alt||p.title||p.base).replace(/"/g,'&quot;')}" loading="lazy" />
+    //       ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+    //     </div>
+    //     <span class="caption">${p.title || p.base}</span>
+    //   </a>
+    // `).join('');
 
     document.getElementById('gallery').innerHTML = html;
   } catch (e){
