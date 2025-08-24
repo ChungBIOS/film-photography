@@ -12,7 +12,7 @@
   <meta property="og:description" content="Selections from my 35mm and medium-format cameras.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chiyuenchung.com/">
-  <link rel="stylesheet" href="./css/styles.css?v=2">
+  <link rel="stylesheet" href="./css/styles.css?v=3">
 </head>
 <body>
   <header>
@@ -20,143 +20,108 @@
     <p>Selections from my 35mm and medium-format cameras</p>
   </header>
 
- <main class="grid" id="gallery"></main>
+  <main class="grid" id="gallery" aria-live="polite"></main>
 
   <footer>
     <p>© 2025 Chiyuen Chung</p>
   </footer>
-  <!-- Lightbox with × and Esc -->
 
+  <!-- gallery renderer -->
   <script>
-async function renderGallery(){
-  try {
-    const res = await fetch('/img/photos.json?v=' + Date.now());
-    const photos = await res.json();
+    async function renderGallery() {
+      const el = document.getElementById('gallery');
+      try {
+        const res = await fetch('/img/photos.json?v=' + Date.now());
+        const photos = await res.json();
 
-    // Sort newest-first by precise timestamp (fallback to date)
-    photos.sort((a,b) => new Date(b.ts || b.date) - new Date(a.ts || a.date));
+        // newest-first using precise timestamp if present, else date
+        photos.sort((a, b) => {
+          const A = a.ts || a.date || '';
+          const B = b.ts || b.date || '';
+          return new Date(B) - new Date(A);
+        });
 
-    const html = photos.map(p => `
-      <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
-        <div class="square">
-          <img
-            src="/img/${p.base}-640.jpg"
-            srcset="/img/${p.base}-640.jpg 640w,
-                    /img/${p.base}-1280.jpg 1280w,
-                    /img/${p.base}-2560.jpg 2560w"
-            sizes="(max-width: 900px) 90vw, 480px"
-            alt="${(p.alt||p.title||p.base).replace(/"/g,'&quot;')}" loading="lazy" />
-          ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-        </div>
-        <span class="caption">
-          ${p.title || p.base}
-          ${p.date ? `<span class="date-badge">${p.date}</span>` : ''}
-        </span>
-      </a>
-    `).join('');
+        const html = photos.map(p => {
+          const base = p.base;
+          const title = p.title || base;
+          const alt = (p.alt || title || base).replace(/"/g, '&quot;');
+          const dateISO = p.date || '';   // "YYYY-MM-DD"
+          const dateBadge = dateISO ? `<time class="date-badge" datetime="${dateISO}">${dateISO}</time>` : '';
 
-    document.getElementById('gallery').innerHTML = html;
-  } catch (e){
-    console.error('Failed to load photos.json', e);
-    document.getElementById('gallery').innerHTML = '<p class="center">Loading photos…</p>';
-  }
-}
-renderGallery();
-</script>
-  
-<!--   <script>
-async function renderGallery(){
-  try {
-    const res = await fetch('/img/photos.json?v=' + Date.now());
-    const photos = await res.json();
-    // Newest first by commit date (YYYY-MM-DD sorts lexicographically)
-    photos.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    
-    const html = photos.map(p => {
-      const title = p.title || p.base;
-      const alt   = (p.alt || title || p.base).replace(/"/g,'&quot;');
-      const date  = p.date || ''; // e.g. "2025-08-24"
-    
-      return `
-        <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
-          <div class="square">
-            <img
-              src="/img/${p.base}-640.jpg"
-              srcset="/img/${p.base}-640.jpg 640w,
-                      /img/${p.base}-1280.jpg 1280w,
-                      /img/${p.base}-2560.jpg 2560w"
-              sizes="(max-width: 900px) 90vw, 480px"
-              alt="${alt}" loading="lazy" />
-            ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-          </div>
-          <span class="caption">
-            <span class="caption-title">${title}</span>
-            ${date ? `<time class="caption-date" datetime="${date}">${date}</time>` : ''}
-          </span>
-        </a>
+          return `
+            <a class="card" href="/img/${base}-2560.jpg" aria-label="Open full-size image of ${alt}">
+              <div class="square">
+                <img
+                  src="/img/${base}-640.jpg"
+                  srcset="/img/${base}-640.jpg 640w,
+                          /img/${base}-1280.jpg 1280w,
+                          /img/${base}-2560.jpg 2560w"
+                  sizes="(max-width: 900px) 90vw, 480px"
+                  alt="${alt}" loading="lazy" />
+                ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+              </div>
+              <span class="caption">
+                <span class="caption-title">${title}</span>
+                ${dateBadge}
+              </span>
+            </a>
+          `;
+        }).join('');
+
+        el.innerHTML = html || '<p class="center">No photos yet.</p>';
+      } catch (e) {
+        console.error('Failed to load photos.json', e);
+        el.innerHTML = '<p class="center">Loading photos…</p>';
+      }
+    }
+    renderGallery();
+  </script>
+
+  <!-- lightbox -->
+  <script>
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a.card');
+      if (!a) return;
+      e.preventDefault();
+
+      const src = a.getAttribute('href');
+      const overlay = document.createElement('div');
+      overlay.setAttribute('role','dialog');
+      overlay.setAttribute('aria-modal','true');
+      overlay.tabIndex = -1;
+      overlay.style = `
+        position:fixed;inset:0;background:rgba(0,0,0,.92);
+        display:flex;align-items:center;justify-content:center;z-index:9999;
       `;
-    }).join('');
- -->
 
+      const closeBtn = document.createElement('div');
+      closeBtn.className = 'lb-close';
+      closeBtn.textContent = '×';
 
-    document.getElementById('gallery').innerHTML = html;
-  } catch (e){
-    console.error('Failed to load photos.json', e);
-    document.getElementById('gallery').innerHTML = '<p class="center">Loading photos…</p>';
-  }
-}
-renderGallery();
-</script>
+      const img = new Image();
+      img.src = src;
+      img.alt = '';
+      img.style = 'max-width:95vw;max-height:95vh;cursor:zoom-out;';
 
-  <!-- Lightbox with × and Esc -->
- <script>
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a.card');
-    if (!a) return;
-    e.preventDefault();
+      const close = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', escHandler);
+        document.body.style.overflow = '';
+        a.focus();
+      };
+      const escHandler = ev => { if (ev.key === 'Escape') close(); };
 
-    const src = a.getAttribute('href');
+      closeBtn.addEventListener('click', close);
+      img.addEventListener('click', close);
+      overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
+      document.addEventListener('keydown', escHandler);
 
-    const overlay = document.createElement('div');
-    overlay.setAttribute('role','dialog');
-    overlay.setAttribute('aria-modal','true');
-    overlay.tabIndex = -1;
-    overlay.style = `
-      position:fixed;inset:0;background:rgba(0,0,0,.92);
-      display:flex;align-items:center;justify-content:center;z-index:9999;
-    `;
-
-    const closeBtn = document.createElement('div');
-    closeBtn.className = 'lb-close';
-    closeBtn.textContent = '×';
-
-    const img = new Image();
-    img.src = src;
-    img.alt = '';
-    img.style = 'max-width:95vw;max-height:95vh;cursor:zoom-out;';
-
-    // helpers
-    const close = () => {
-      overlay.remove();
-      document.removeEventListener('keydown', escHandler);
-      document.body.style.overflow = ''; // restore scroll
-      a.focus(); // return focus
-    };
-    const escHandler = ev => { if (ev.key === 'Escape') close(); };
-
-    // interactions
-    closeBtn.addEventListener('click', close);
-    img.addEventListener('click', close);
-    overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
-    document.addEventListener('keydown', escHandler);
-
-    overlay.appendChild(closeBtn);
-    overlay.appendChild(img);
-    document.body.appendChild(overlay);
-
-    document.body.style.overflow = 'hidden'; // lock scroll
-    overlay.focus();
-  });
-</script>
+      overlay.appendChild(closeBtn);
+      overlay.appendChild(img);
+      document.body.appendChild(overlay);
+      document.body.style.overflow = 'hidden';
+      overlay.focus();
+    });
+  </script>
 </body>
 </html>
