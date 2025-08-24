@@ -53,33 +53,18 @@ jobs:
             done
           done
 
-      # - name: Build img/photos.json from resized images
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     mapfile -t BASENAMES < <(ls img/*-640.jpg 2>/dev/null | sed 's@.*/@@;s@-640\.jpg$@@' | sort -u)
-      #     echo "[" > img/photos.json
-      #     first=1
-      #     for b in "${BASENAMES[@]}"; do
-      #       if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-      #         if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
-      #         first=0
-      #         printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s"}' "$b" "$b" "$b" "$b" >> img/photos.json
-      #       fi
-      #     done
-      #     echo "" >> img/photos.json
-      #     echo "]" >> img/photos.json
       - name: Build img/photos.json from resized images
         shell: bash
         run: |
           set -euo pipefail
           echo "[" > img/photos.json
           first=1
-          # Iterate over files in commit date order (newest first)
-          for f in $(git log --diff-filter=A --pretty=format:%ad --date=short --name-only --reverse -- img/*-640.jpg \
-                      | paste - - \
+          # Collect all -640.jpg files, sort by commit date (newest first)
+          for f in $(git log --pretty=format: --name-only --diff-filter=A --reverse -- img/*-640.jpg \
+                      | sort -u \
+                      | xargs -I{} git log -1 --format="%ad %H {}" --date=short {} \
                       | sort -r \
-                      | awk '{print $2}'); do
+                      | awk '{print $3}'); do
             b=$(basename "$f" -640.jpg)
             if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
               DATE=$(git log -1 --format=%ad --date=short -- "img/${b}-640.jpg")
@@ -91,6 +76,7 @@ jobs:
           done
           echo "" >> img/photos.json
           echo "]" >> img/photos.json
+
       - name: Commit and push generated files safely
         shell: bash
         run: |
@@ -98,7 +84,6 @@ jobs:
           git config user.name  "actions-bot"
           git config user.email "actions@users.noreply.github.com"
 
-          # Sync with remote even if the working tree has generated files
           git pull --rebase --autostash
 
           git add img/*.jpg img/photos.json 2>/dev/null || true
@@ -109,9 +94,7 @@ jobs:
 
           git commit -m "Resize photos + update manifest"
 
-          # Try push; if rejected, rebase with autostash and retry once
           if ! git push; then
             git pull --rebase --autostash
             git push
           fi
-      
