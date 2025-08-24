@@ -50,6 +50,20 @@ a:focus-visible, button:focus-visible{
   border-radius:6px;
 }
 
+.date-badge{
+  display:inline-block;
+  margin-left:.4rem;
+  padding:.06rem .35rem;
+  font-size:.78rem;
+  color:var(--muted);
+  border:1px solid rgba(0,0,0,.15);
+  border-radius:4px;
+  opacity:.9;
+}
+@media (prefers-color-scheme: dark){
+  .date-badge{ border-color: rgba(255,255,255,.2); }
+}
+
 /* ---------- 4) Header & Footer ---------- */
 header, footer{
   display:flex;
