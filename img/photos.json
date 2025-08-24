@@ -1,4 +1,5 @@
 [
   {"base":"care","title":"care","overlay":"care","alt":"care"},
+  {"base":"smile","title":"smile","overlay":"smile","alt":"smile"},
   {"base":"tower","title":"tower","overlay":"tower","alt":"tower"}
 ]
