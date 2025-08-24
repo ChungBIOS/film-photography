@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+          fetch-depth: 0   # ← ensure git log has the needed commits
 
       - name: Install ImageMagick
         run: |
@@ -57,38 +58,36 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-  
+
           echo "[" > img/photos.json
           first=1
-  
-          # Make a "timestamp file" list: "<ISO8601> <path>"
+
+          # Build "timestamp path" lines, newest-first by ISO ts
           mapfile -t LINES < <(
             shopt -s nullglob
             for f in img/*-640.jpg; do
               ts="$(git log -1 --format=%cI -- "$f" 2>/dev/null || echo 1970-01-01T00:00:00Z)"
               echo "$ts $f"
-            done | sort -r
+            done | LC_ALL=C sort -r
           )
-  
-          # Emit JSON in newest-first order
+
           for line in "${LINES[@]}"; do
             ts="${line%% *}"
             f="${line#* }"
             b="$(basename "$f" -640.jpg)"
-  
+
             if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-              date_short="$(printf '%s\n' "$ts" | cut -dT -f1)"  # YYYY-MM-DD
+              date_short="${ts%%T*}"  # YYYY-MM-DD
               if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
               first=0
               printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s","ts":"%s"}' \
                 "$b" "$b" "$b" "$b" "$date_short" "$ts" >> img/photos.json
             fi
           done
-  
+
           echo "" >> img/photos.json
           echo "]" >> img/photos.json
 
-          
       - name: Commit and push generated files safely
         shell: bash
         run: |
