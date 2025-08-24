@@ -6,10 +6,7 @@ permissions:
 on:
   push:
     paths:
-      - 'img/originals/*.jpg'
-      - 'img/originals/*.jpeg'
-      - 'img/originals/*.JPG'
-      - 'img/originals/*.JPEG'
+      - 'img/originals/*.{jpg,jpeg,JPG,JPEG}'
       - '.github/workflows/build-manifest.yml'
   workflow_dispatch:
 
@@ -77,9 +74,8 @@ jobs:
           git config user.name  "actions-bot"
           git config user.email "actions@users.noreply.github.com"
 
-          # Stay in sync to avoid non-fast-forward errors if a parallel run pushed
-          git fetch origin
-          git rebase origin/${GITHUB_REF_NAME}
+          # Sync with remote even if the working tree has generated files
+          git pull --rebase --autostash
 
           git add img/*.jpg img/photos.json 2>/dev/null || true
           if git diff --cached --quiet; then
@@ -89,8 +85,9 @@ jobs:
 
           git commit -m "Resize photos + update manifest"
 
-          # First push; if something raced, rebase and retry once
+          # Try push; if rejected, rebase with autostash and retry once
           if ! git push; then
-            git pull --rebase
+            git pull --rebase --autostash
             git push
           fi
+      
