@@ -32,6 +32,43 @@ async function renderGallery(){
   try {
     const res = await fetch('/img/photos.json?v=' + Date.now());
     const photos = await res.json();
+
+    // Sort newest-first by precise timestamp (fallback to date)
+    photos.sort((a,b) => new Date(b.ts || b.date) - new Date(a.ts || a.date));
+
+    const html = photos.map(p => `
+      <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
+        <div class="square">
+          <img
+            src="/img/${p.base}-640.jpg"
+            srcset="/img/${p.base}-640.jpg 640w,
+                    /img/${p.base}-1280.jpg 1280w,
+                    /img/${p.base}-2560.jpg 2560w"
+            sizes="(max-width: 900px) 90vw, 480px"
+            alt="${(p.alt||p.title||p.base).replace(/"/g,'&quot;')}" loading="lazy" />
+          ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+        </div>
+        <span class="caption">
+          ${p.title || p.base}
+          ${p.date ? `<span class="date-badge">${p.date}</span>` : ''}
+        </span>
+      </a>
+    `).join('');
+
+    document.getElementById('gallery').innerHTML = html;
+  } catch (e){
+    console.error('Failed to load photos.json', e);
+    document.getElementById('gallery').innerHTML = '<p class="center">Loading photos…</p>';
+  }
+}
+renderGallery();
+</script>
+  
+<!--   <script>
+async function renderGallery(){
+  try {
+    const res = await fetch('/img/photos.json?v=' + Date.now());
+    const photos = await res.json();
     // Newest first by commit date (YYYY-MM-DD sorts lexicographically)
     photos.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     
@@ -59,22 +96,8 @@ async function renderGallery(){
         </a>
       `;
     }).join('');
+ -->
 
-    // const html = photos.map(p => `
-    //   <a class="card" href="/img/${p.base}-2560.jpg" aria-label="Open full-size image">
-    //     <div class="square">
-    //       <img
-    //         src="/img/${p.base}-640.jpg"
-    //         srcset="/img/${p.base}-640.jpg 640w,
-    //                 /img/${p.base}-1280.jpg 1280w,
-    //                 /img/${p.base}-2560.jpg 2560w"
-    //         sizes="(max-width: 900px) 90vw, 480px"
-    //         alt="${(p.alt||p.title||p.base).replace(/"/g,'&quot;')}" loading="lazy" />
-    //       ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-    //     </div>
-    //     <span class="caption">${p.title || p.base}</span>
-    //   </a>
-    // `).join('');
 
     document.getElementById('gallery').innerHTML = html;
   } catch (e){
