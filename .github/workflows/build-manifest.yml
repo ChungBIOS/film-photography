@@ -57,26 +57,38 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+  
           echo "[" > img/photos.json
           first=1
-          # Collect all -640.jpg files, sort by commit date (newest first)
-          for f in $(git log --pretty=format: --name-only --diff-filter=A --reverse -- img/*-640.jpg \
-                      | sort -u \
-                      | xargs -I{} git log -1 --format="%ad %H {}" --date=short {} \
-                      | sort -r \
-                      | awk '{print $3}'); do
-            b=$(basename "$f" -640.jpg)
+  
+          # Make a "timestamp file" list: "<ISO8601> <path>"
+          mapfile -t LINES < <(
+            shopt -s nullglob
+            for f in img/*-640.jpg; do
+              ts="$(git log -1 --format=%cI -- "$f" 2>/dev/null || echo 1970-01-01T00:00:00Z)"
+              echo "$ts $f"
+            done | sort -r
+          )
+  
+          # Emit JSON in newest-first order
+          for line in "${LINES[@]}"; do
+            ts="${line%% *}"
+            f="${line#* }"
+            b="$(basename "$f" -640.jpg)"
+  
             if [[ -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-              DATE=$(git log -1 --format=%ad --date=short -- "img/${b}-640.jpg")
+              date_short="$(printf '%s\n' "$ts" | cut -dT -f1)"  # YYYY-MM-DD
               if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
               first=0
-              printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s"}' \
-                "$b" "$b" "$b" "$b" "$DATE" >> img/photos.json
+              printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s","ts":"%s"}' \
+                "$b" "$b" "$b" "$b" "$date_short" "$ts" >> img/photos.json
             fi
           done
+  
           echo "" >> img/photos.json
           echo "]" >> img/photos.json
 
+          
       - name: Commit and push generated files safely
         shell: bash
         run: |
