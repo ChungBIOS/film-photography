@@ -6,7 +6,10 @@ permissions:
 on:
   push:
     paths:
-      - 'img/originals/*.{jpg,jpeg,JPG,JPEG}'
+      - 'img/originals/*.jpg'
+      - 'img/originals/*.jpeg'
+      - 'img/originals/*.JPG'
+      - 'img/originals/*.JPEG'
       - '.github/workflows/build-manifest.yml'
   workflow_dispatch:
 
