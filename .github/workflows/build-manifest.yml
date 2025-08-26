@@ -58,10 +58,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "[" > img/photos.json
-          first=1
-
-          # Build "<ISO8601> <stem>" lines from ORIGINALS, sort newest-first
+          # Collect "<ISO8601> <stem>" for all originals
           mapfile -t LINES < <(
             shopt -s nullglob nocaseglob
             for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
@@ -71,21 +68,27 @@ jobs:
             done | LC_ALL=C sort -r
           )
 
-          # Emit entries only if all three resized variants exist
-          for line in "${LINES[@]}"; do
+          # De-duplicate by stem, keeping the first (newest) timestamped line
+          mapfile -t UNIQUE < <(printf "%s\n" "${LINES[@]}" | awk '!seen[$2]++')
+
+          # Build photos.json
+          : > img/photos.json
+          echo "[" >> img/photos.json
+          first=1
+          for line in "${UNIQUE[@]}"; do
             ts="${line%% *}"
             b="${line#* }"
             if [[ -f "img/${b}-640.jpg" && -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-              date_short="${ts%%T*}"  # YYYY-MM-DD
+              date_short="${ts%%T*}"
               if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
               first=0
               printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s","ts":"%s"}' \
                 "$b" "$b" "$b" "$b" "$date_short" "$ts" >> img/photos.json
             fi
           done
-
-          echo "" >> img/photos.json
+          echo ""  >> img/photos.json
           echo "]" >> img/photos.json
+      
 
       - name: Commit and push generated files safely
         shell: bash
