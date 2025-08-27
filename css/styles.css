@@ -1,35 +1,39 @@
 /* ==================================================
-   Chiyuen Chung — Film Photography
-   Museum label aesthetic with modern clarity
+   Chi Yuen Chung — Film Photography
+   Option A: Square mounts (consistent white print border)
    ================================================== */
 
-/* ---------- Fonts ---------- */
+/* ---------- 1) Fonts ---------- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
 
-/* ---------- Design tokens ---------- */
-:root {
+/* ---------- 2) Design tokens ---------- */
+:root{
+  /* Colors */
   --bg: #ffffff;
   --fg: #111111;
   --muted: #666666;
-  --page-max: 1200px;
-  --gap: 28px;
 
+  /* Layout */
+  --page-max: 1200px;
+  --gap: 24px; /* wider gap for print spacing */
+
+  /* Type */
   --font-body: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   --font-caption: 'Lora', Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+@media (prefers-color-scheme: dark){
+  :root{
     --bg:#0d0f12;
     --fg:#e7e7e7;
     --muted:#b8b8b8;
   }
 }
 
-/* ---------- Base ---------- */
-* { box-sizing:border-box; }
-html, body { height:100%; }
-body {
+/* ---------- 3) Base ---------- */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
   margin:0;
   background:var(--bg);
   color:var(--fg);
@@ -39,40 +43,42 @@ body {
   text-rendering:optimizeLegibility;
 }
 
-a { color:inherit; text-decoration:none; }
-a:focus-visible, button:focus-visible {
+a{ color:inherit; }
+a:focus-visible, button:focus-visible{
   outline:2px solid #7aa7ff;
   outline-offset:2px;
   border-radius:6px;
 }
 
-/* ---------- Header & Footer ---------- */
-header, footer {
+/* ---------- 4) Header & Footer ---------- */
+header, footer{
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:.35rem;
   text-align:center;
 }
-header { padding:44px 16px 24px; }
-footer { padding:40px 16px; }
+header{ padding:44px 16px 24px; }
+footer{ padding:40px 16px; }
 
-header h1 {
+header h1{
   margin:0;
   font-weight:600;
+  letter-spacing:.2px;
   font-size: clamp(22px, 2.6vw, 36px);
 }
-header p {
+header p{
   margin:0;
   color:var(--muted);
   font-size:.98rem;
 }
 
-.brand { border-bottom:1px solid transparent; }
-.brand:hover { border-color: currentColor; }
+/* Subtle brand link for title */
+.brand{ text-decoration:none; border-bottom:1px solid transparent; }
+.brand:hover{ border-color: currentColor; }
 
-/* ---------- Grid ---------- */
-.grid {
+/* ---------- 5) Grid ---------- */
+.grid{
   max-width: var(--page-max);
   margin: 0 auto;
   padding: 0 16px 72px;
@@ -80,68 +86,121 @@ header p {
   gap: var(--gap);
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
-@media (min-width:1100px) {
-  .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+@media (min-width:1100px){
+  .grid{ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 }
 
-.card { display:block; }
+.card{ display:block; text-decoration:none; color:inherit; }
 
-/* ---------- Square tile (print look) ---------- */
-@supports (aspect-ratio: 1) {
-  .square {
-    aspect-ratio: 1/1;
+/* ---------- 6) Square mount (consistent print border) ---------- */
+/* The outer tile is always a square with a thick white “print” border. */
+@supports (aspect-ratio: 1){
+  .square{
+    aspect-ratio: 1 / 1;
+    width:100%;
+    background:#fff;                 /* paper */
+    border:12px solid #fff;          /* print border */
+    border-radius:0;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 8px 20px rgba(0,0,0,0.35);
+    transition: transform .18s ease, box-shadow .18s ease;
+
+    /* center the image cleanly */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .square > img{
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;              /* <= key: keeps white border visible on all sides */
+    display:block;
+  }
+}
+
+/* Fallback when aspect-ratio isn’t supported */
+@supports not (aspect-ratio: 1){
+  .square{
+    position:relative;
+    width:100%;
+    padding-top:100%;                /* square */
     background:#fff;
     border:12px solid #fff;
+    border-radius:0;
     overflow:hidden;
     box-shadow:0 8px 20px rgba(0,0,0,0.35);
     transition: transform .18s ease, box-shadow .18s ease;
   }
+  .square > img{
+    position:absolute; inset:12px;   /* respect the border visually */
+    width:calc(100% - 24px);
+    height:calc(100% - 24px);
+    object-fit:contain;
+  }
 }
-.square img {
-  width:100%; height:100%;
-  object-fit:cover;
-}
-.card:hover .square {
+
+.card:hover .square{
   transform: translateY(-2px);
   box-shadow:0 12px 26px rgba(0,0,0,0.45);
 }
 
-/* ---------- Museum label ---------- */
-.museum-label {
+/* Optional hover label overlay on tile */
+.tile-overlay{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:10px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.62) 100%);
+  color:#fff;
+  font-size:.9rem;
+  letter-spacing:.15px;
+  opacity:0;
+  transition: opacity .2s ease;
+  pointer-events:none;
+}
+.card:hover .tile-overlay{ opacity:1; }
+
+/* ---------- 7) Museum-style label under each print ---------- */
+.museum-label{
   display:block;
-  margin-top:16px;
-  padding:0 8px;
+  margin-top:14px;
+  padding:10px 8px 2px;
   text-align:center;
-  max-width:520px;
+  max-width: 520px;
   margin-left:auto; margin-right:auto;
 }
 
-.caption {
+.caption{
   display:block;
   color:var(--fg);
   font-family: var(--font-caption);
   line-height:1.35;
 }
-.caption-title {
+.caption-title{
   font-variant-caps: small-caps;
   letter-spacing:.06em;
   font-weight:600;
-  font-size:1.05rem;
-}
-.date-badge {
-  margin-left:.45rem;
-  padding:.1rem .4rem;
-  font-size:.78rem;
-  border-radius:4px;
-  color: var(--muted);
-  border:1px solid rgba(0,0,0,.15);
-}
-@media (prefers-color-scheme: dark) {
-  .date-badge { border-color: rgba(255,255,255,.2); }
+  font-size:1.02rem;
 }
 
-/* Rule divider */
-.museum-rule {
+/* date pill next to titles */
+.date-badge{
+  display:inline-block;
+  margin-left:.45rem;
+  padding:.1rem .38rem;
+  font-size:.78rem;
+  color:var(--muted);
+  border:1px solid rgba(0,0,0,.15);
+  border-radius:4px;
+  opacity:.9;
+}
+@media (prefers-color-scheme: dark){
+  .date-badge{ border-color: rgba(255,255,255,.2); }
+}
+
+/* Hairline rule like a gallery placard */
+.museum-rule{
   display:block;
   height:1px;
   width:64px;
@@ -149,55 +208,86 @@ header p {
   background: currentColor;
   opacity:.18;
 }
-.card:hover .museum-rule { opacity:.28; }
-@media (prefers-color-scheme: dark) {
-  .museum-rule { opacity:.24; }
+.card:hover .museum-rule{ opacity:.26; }
+@media (prefers-color-scheme: dark){
+  .museum-rule{ opacity:.24; }
 }
 
-/* Metadata stack */
-.meta {
+/* Stacked metadata (with emojis) */
+.meta{
   margin:0;
   padding:0;
   list-style:none;
   color: var(--muted);
   font-family: var(--font-caption);
 }
-.meta--stack {
+.meta--stack{
   display:flex;
   flex-direction:column;
   gap:4px;
   align-items:center;
   font-size:.92rem;
 }
-.meta-item {
+.meta-item{
   white-space:nowrap;
   opacity:.95;
-  display:flex;
+  display:inline-flex;
   align-items:center;
   gap:6px;
 }
 
-/* ---------- Lightbox ---------- */
-.lb-close {
-  position:absolute;
-  top:16px; right:20px;
-  font-size:2.2rem;
-  color:#fff;
-  cursor:pointer;
-}
-.lb-arrow {
+/* ---------- 8) Lightbox ---------- */
+.lightbox-overlay{ cursor: zoom-out; }
+
+/* Arrows */
+.lb-arrow{
   position:absolute;
   top:50%;
-  transform: translateY(-50%);
+  transform:translateY(-50%);
   background: rgba(255,255,255,.14);
+  backdrop-filter: blur(2px);
   border: 1px solid rgba(255,255,255,.25);
   color:#fff;
   width:44px; height:44px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  font-size:28px;
-  cursor:pointer;
+  border-radius:999px;
+  display:grid; place-items:center;
+  font-size:28px; line-height:1;
+  cursor:pointer; user-select:none;
+  z-index:10000;
+  transition: background .2s ease, transform .12s ease, box-shadow .2s ease;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
 }
 .lb-prev{ left:24px; }
 .lb-next{ right:24px; }
+.lb-arrow:hover{ background: rgba(255,255,255,.22); }
+.lb-arrow:active{ transform: translateY(-50%) scale(.98); }
+.lb-arrow:focus-visible{
+  outline:2px solid #7aa7ff;
+  outline-offset:2px;
+}
+@media (max-width:640px){
+  .lb-arrow{ width:52px; height:52px; font-size:30px; }
+  .lb-prev{ left:16px; }
+  .lb-next{ right:16px; }
+}
+
+/* ---------- 9) Legacy caption (kept for safety; not used with museum-label) ---------- */
+.caption--smallcaps{
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: .8rem;
+  opacity: .95;
+}
+
+/* ---------- 10) Lightbox close ---------- */
+.lb-close{
+  position:absolute;
+  top:16px; right:20px;
+  font-size:2.2rem;
+  font-weight:700;
+  line-height:1;
+  color:#fff;
+  cursor:pointer;
+  text-shadow: 0 2px 20px rgba(0,0,0,.45);
+  user-select:none;
+}
