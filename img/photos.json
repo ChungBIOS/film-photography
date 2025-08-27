@@ -9,8 +9,8 @@
     "camera": "Leica III",
     "lens": "Summitar 50mm f/2 orange filter",
     "film": "Ifford Delta 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-24"
   },
   {
     "base": "shade",
@@ -22,8 +22,8 @@
     "camera": "Leica III",
     "lens": "Summitar 50mm f/2 orange filter",
     "film": "Ifford Delta 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-27"
   },
   {
     "base": "work",
@@ -35,8 +35,8 @@
     "camera": "Leica III",
     "lens": "Summitar 50mm f/2 orange filter",
     "film": "Ifford Delta 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-27"
   },
   {
     "base": "jason",
@@ -48,8 +48,8 @@
     "camera": "Leica III",
     "lens": "Summarit 50mm f/1.5",
     "film": "Kodak ColorPlus 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "aika",
@@ -61,8 +61,8 @@
     "camera": "Leica III",
     "lens": "Summarit 50mm f/1.5",
     "film": "Kodak ColorPlus 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "space",
@@ -74,8 +74,8 @@
     "camera": "Leica III",
     "lens": "Summarit 50mm f/1.5",
     "film": "Kodak ColorPlus 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "jayjay",
@@ -87,8 +87,8 @@
     "camera": "Nikon F",
     "lens": "Nikkor 50mm f/2",
     "film": "Kodak ColorPlus 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "self I",
@@ -100,8 +100,8 @@
     "camera": "Nikon F",
     "lens": "Nikkor 50mm f/2",
     "film": "Kodak ColorPlus 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "jamal",
@@ -113,8 +113,8 @@
     "camera": "Nikon F",
     "lens": "Nikkor 50mm f/2",
     "film": "Kodak ColorPlus 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "nico",
@@ -126,8 +126,8 @@
     "camera": "Leica IIIg",
     "lens": "Summarit 50mm f/1.5",
     "film": "Ilford XP2 Super 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "unknown I",
@@ -139,8 +139,8 @@
     "camera": "Leica IIIg",
     "lens": "Summarit 50mm f/1.5",
     "film": "Ilford XP2 Super 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "untitled I",
@@ -152,21 +152,8 @@
     "camera": "Leica IIIg",
     "lens": "Summarit 50mm f/1.5",
     "film": "Ilford XP2 Super 400",
-    "location": "",
-    "tags": []
-  },
-  {
-    "base": "closed",
-    "title": "closed",
-    "overlay": "closed",
-    "alt": "closed",
-    "date": "2025-08-26",
-    "ts": "2025-08-26T09:45:31+01:00",
-    "camera": "Rolleiflex 3.5T",
-    "lens": "",
-    "film": "Ilford HP5 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "rise",
@@ -176,10 +163,21 @@
     "date": "2025-08-26",
     "ts": "2025-08-26T09:45:31+01:00",
     "camera": "Rolleiflex 3.5T",
-    "lens": "",
     "film": "Ilford FP4+125",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
+  },
+  {
+    "base": "closed",
+    "title": "closed",
+    "overlay": "closed",
+    "alt": "closed",
+    "date": "2025-08-26",
+    "ts": "2025-08-26T09:45:31+01:00",
+    "camera": "Rolleiflex 3.5T",
+    "film": "Ilford HP5 400",
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "passage",
@@ -189,10 +187,9 @@
     "date": "2025-08-26",
     "ts": "2025-08-26T09:41:11+01:00",
     "camera": "Rolleiflex 3.5T",
-    "lens": "",
     "film": "Ilford FP4+125",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "musing",
@@ -204,8 +201,8 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Ilford HP5 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "joined",
@@ -217,8 +214,8 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Ilford HP5 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "groomed",
@@ -230,8 +227,8 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Ilford HP5 400",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-26"
   },
   {
     "base": "smile",
@@ -243,8 +240,8 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Kodak Gold 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-24"
   },
   {
     "base": "tower",
@@ -256,8 +253,8 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Kodak Gold 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-06-21"
   },
   {
     "base": "care",
@@ -269,7 +266,7 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Kodak Gold 200",
-    "location": "",
-    "tags": []
+    "tags": [],
+    "taken": "2025-08-24"
   }
 ]
