@@ -92,6 +92,29 @@ header p{
 .brand{ text-decoration:none; border-bottom:1px solid transparent; }
 .brand:hover{ border-color: currentColor; }
 
+/* Lightbox arrows */
+.lb-arrow{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.14);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+.lb-prev{ left: 24px; }
+.lb-next{ right: 24px; }
+.lb-arrow:hover{ background: rgba(255,255,255,.22); }
+
 /* ---------- 5) Grid ---------- */
 .grid{
   max-width: var(--page-max);
