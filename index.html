@@ -12,7 +12,7 @@
   <meta property="og:description" content="35mm and medium-format">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chiyuenchung.com/">
-  <link rel="stylesheet" href="./css/styles.css?v=3">
+  <link rel="stylesheet" href="./css/styles.css?v=4">
 </head>
 <body>
   <header>
@@ -26,197 +26,146 @@
     <p>© 2025 Chi Yuen Chung</p>
   </footer>
 
-  <!-- gallery renderer -->
   <script>
-  async function renderGallery() {
-    const el = document.getElementById('gallery');
-    try {
-      const res = await fetch('/img/photos.json?v=' + Date.now());
-      const photos = await res.json();
+    let galleryPhotos = [];
+    let currentIndex = -1;
 
-      // newest-first using precise timestamp if present, else date
-      photos.sort((a, b) => {
-        const A = a.ts || a.date || '';
-        const B = b.ts || b.date || '';
-        return new Date(B) - new Date(A);
-      });
+    async function renderGallery() {
+      const el = document.getElementById('gallery');
+      try {
+        const res = await fetch('/img/photos.json?v=' + Date.now());
+        const photos = await res.json();
 
-      const html = photos.map(p => {
-        const base = p.base;
-        const title = p.title || base;
-        const alt = (p.alt || title || base).replace(/"/g, '&quot;');
-        const dateISO = p.date || ''; // "YYYY-MM-DD"
+        // newest-first using precise timestamp if present, else date
+        photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
+        galleryPhotos = photos;
 
-        // CSV-only fields we want to test/display
-        const camera = p.camera || '';         // ← comes from the CSV
-        const lens   = p.lens   || '';         // optional: CSV
-        const film   = p.film   || '';         // optional: CSV
-        const place  = p.location || '';       // optional: CSV
-        const shot   = p.shot_date || '';      // optional: CSV "YYYY-MM-DD"
+        const html = photos.map((p, idx) => {
+          const base = p.base;
+          const title = p.title || base;
+          const alt = (p.alt || title || base).replace(/"/g, '&quot;');
 
-        return `
-          <a class="card" href="/img/${base}-2560.jpg" aria-label="Open full-size image of ${alt}">
-            <div class="square">
-              <img
-                src="/img/${base}-640.jpg"
-                srcset="/img/${base}-640.jpg 640w,
-                        /img/${base}-1280.jpg 1280w,
-                        /img/${base}-2560.jpg 2560w"
-                sizes="(max-width: 900px) 90vw, 480px"
-                alt="${alt}" loading="lazy" />
-              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-            </div>
+          // CSV-sourced fields (may be empty if not set in sheet)
+          const camera = p.camera || '';
+          const lens   = p.lens   || '';
+          const film   = p.film   || '';
+          const place  = p.location || '';
+          const shot   = p.shot_date || '';   // preferred date (from sheet)
+          const commit = p.date || '';        // fallback date (from build)
 
-            <span class="caption">
-              <span class="caption-title">${title}</span>
-              ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` : (dateISO ? `<time class="date-badge" datetime="${dateISO}">${dateISO}</time>` : '')}
-            </span>
+          return `
+            <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
+              <div class="square">
+                <img
+                  src="/img/${base}-640.jpg"
+                  srcset="/img/${base}-640.jpg 640w,
+                          /img/${base}-1280.jpg 1280w,
+                          /img/${base}-2560.jpg 2560w"
+                  sizes="(max-width: 900px) 90vw, 480px"
+                  alt="${alt}" loading="lazy" />
+                ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+              </div>
 
-            ${(camera || lens || film || place) ? `
-              <ul class="meta">
-                ${camera ? `<li class="meta-item" title="Camera">📷 ${camera}</li>` : ''}
-                ${lens   ? `<li class="meta-item" title="Lens">🔭 ${lens}</li>` : ''}
-                ${film   ? `<li class="meta-item" title="Film">🎞️ ${film}</li>` : ''}
-                ${place  ? `<li class="meta-item" title="Location">📍 ${place}</li>` : ''}
-              </ul>
-            ` : ''}
-          </a>
-        `;
-      }).join('');
+              <span class="caption">
+                <span class="caption-title">${title}</span>
+                ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` :
+                         (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : '')}
+              </span>
 
-      el.innerHTML = html || '<p class="center">No photos yet.</p>';
-    } catch (e) {
-      console.error('Failed to load photos.json', e);
-      el.innerHTML = '<p class="center">Loading photos…</p>';
+              ${(camera || lens || film || place) ? `
+                <ul class="meta">
+                  ${camera ? `<li class="meta-item" title="Camera">📷 ${camera}</li>` : ''}
+                  ${lens   ? `<li class="meta-item" title="Lens">🔭 ${lens}</li>` : ''}
+                  ${film   ? `<li class="meta-item" title="Film">🎞️ ${film}</li>` : ''}
+                  ${place  ? `<li class="meta-item" title="Location">📍 ${place}</li>` : ''}
+                </ul>
+              ` : ''}
+            </a>
+          `;
+        }).join('');
+
+        el.innerHTML = html || '<p class="center">No photos yet.</p>';
+      } catch (e) {
+        console.error('Failed to load photos.json', e);
+        el.innerHTML = '<p class="center">Loading photos…</p>';
+      }
     }
-  }
-  renderGallery();
-</script>
+    renderGallery();
 
-  <!-- lightbox -->
- <script>
-  let galleryPhotos = [];
-  let currentIndex = -1;
+    // Lightbox with arrows + keyboard
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a.card');
+      if (!a) return;
+      e.preventDefault();
+      currentIndex = parseInt(a.dataset.index, 10);
+      openLightbox(currentIndex);
+    });
 
-  // collect photos into an array when rendering
-  async function renderGallery() {
-    const el = document.getElementById('gallery');
-    try {
-      const res = await fetch('/img/photos.json?v=' + Date.now());
-      const photos = await res.json();
+    function openLightbox(index) {
+      const photo = galleryPhotos[index];
+      if (!photo) return;
 
-      // newest-first sort
-      photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
-      galleryPhotos = photos;
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+      overlay.setAttribute('role','dialog');
+      overlay.setAttribute('aria-modal','true');
+      overlay.tabIndex = -1;
+      overlay.style = `
+        position:fixed;inset:0;background:rgba(0,0,0,.92);
+        display:flex;align-items:center;justify-content:center;z-index:9999;
+      `;
 
-      const html = photos.map((p, idx) => {
-        const base = p.base;
-        const title = p.title || base;
-        const alt = (p.alt || title || base).replace(/"/g, '&quot;');
-        const dateISO = p.date || '';
-        const dateBadge = dateISO ? `<time class="date-badge" datetime="${dateISO}">${dateISO}</time>` : '';
+      const closeBtn = document.createElement('div');
+      closeBtn.className = 'lb-close';
+      closeBtn.textContent = '×';
 
-        return `
-          <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
-            <div class="square">
-              <img
-                src="/img/${base}-640.jpg"
-                srcset="/img/${base}-640.jpg 640w,
-                        /img/${base}-1280.jpg 1280w,
-                        /img/${base}-2560.jpg 2560w"
-                sizes="(max-width: 900px) 90vw, 480px"
-                alt="${alt}" loading="lazy" />
-              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-            </div>
-            <span class="caption">
-              <span class="caption-title">${title}</span>
-              ${dateBadge}
-            </span>
-          </a>
-        `;
-      }).join('');
+      const img = new Image();
+      img.src = `/img/${photo.base}-2560.jpg`;
+      img.alt = '';
+      img.style = 'max-width:95vw;max-height:95vh;';
 
-      el.innerHTML = html || '<p class="center">No photos yet.</p>';
-    } catch (e) {
-      console.error('Failed to load photos.json', e);
-      el.innerHTML = '<p class="center">Loading photos…</p>';
+      // arrows
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'lb-arrow lb-prev';
+      prevBtn.setAttribute('aria-label', 'Previous photo');
+      prevBtn.textContent = '‹';
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'lb-arrow lb-next';
+      nextBtn.setAttribute('aria-label', 'Next photo');
+      nextBtn.textContent = '›';
+
+      overlay.appendChild(closeBtn);
+      overlay.appendChild(prevBtn);
+      overlay.appendChild(nextBtn);
+      overlay.appendChild(img);
+      document.body.appendChild(overlay);
+      document.body.style.overflow = 'hidden';
+
+      const close = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', keyHandler);
+        document.body.style.overflow = '';
+      };
+      const step = delta => {
+        currentIndex = (currentIndex + delta + galleryPhotos.length) % galleryPhotos.length;
+        const p = galleryPhotos[currentIndex];
+        img.src = `/img/${p.base}-2560.jpg`;
+      };
+      const keyHandler = ev => {
+        if (ev.key === 'Escape') close();
+        if (ev.key === 'ArrowRight') step(1);
+        if (ev.key === 'ArrowLeft') step(-1);
+      };
+
+      closeBtn.addEventListener('click', close);
+      overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
+      prevBtn.addEventListener('click', () => step(-1));
+      nextBtn.addEventListener('click', () => step(1));
+      document.addEventListener('keydown', keyHandler);
+
+      overlay.focus();
     }
-  }
-  renderGallery();
-
-  // Lightbox
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a.card');
-    if (!a) return;
-    e.preventDefault();
-
-    currentIndex = parseInt(a.dataset.index, 10);
-    openLightbox(currentIndex);
-  });
-
-  function openLightbox(index) {
-    const photo = galleryPhotos[index];
-    if (!photo) return;
-
-    const overlay = document.createElement('div');
-    overlay.className = 'lightbox-overlay';
-    overlay.setAttribute('role','dialog');
-    overlay.setAttribute('aria-modal','true');
-    overlay.tabIndex = -1;
-    overlay.style = `
-      position:fixed;inset:0;background:rgba(0,0,0,.92);
-      display:flex;align-items:center;justify-content:center;z-index:9999;
-    `;
-
-    const closeBtn = document.createElement('div');
-    closeBtn.className = 'lb-close';
-    closeBtn.textContent = '×';
-
-    const img = new Image();
-    img.src = `/img/${photo.base}-2560.jpg`;
-    img.style = 'max-width:95vw;max-height:95vh;';
-
-    // Arrows
-    const prevBtn = document.createElement('div');
-    prevBtn.className = 'lb-arrow lb-prev';
-    prevBtn.textContent = '‹';
-
-    const nextBtn = document.createElement('div');
-    nextBtn.className = 'lb-arrow lb-next';
-    nextBtn.textContent = '›';
-
-    overlay.appendChild(closeBtn);
-    overlay.appendChild(prevBtn);
-    overlay.appendChild(nextBtn);
-    overlay.appendChild(img);
-    document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
-
-    // handlers
-    const close = () => {
-      overlay.remove();
-      document.removeEventListener('keydown', keyHandler);
-      document.body.style.overflow = '';
-    };
-    const step = delta => {
-      currentIndex = (currentIndex + delta + galleryPhotos.length) % galleryPhotos.length;
-      const p = galleryPhotos[currentIndex];
-      img.src = `/img/${p.base}-2560.jpg`;
-    };
-    const keyHandler = ev => {
-      if (ev.key === 'Escape') close();
-      if (ev.key === 'ArrowRight') step(1);
-      if (ev.key === 'ArrowLeft') step(-1);
-    };
-
-    closeBtn.addEventListener('click', close);
-    overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
-    prevBtn.addEventListener('click', () => step(-1));
-    nextBtn.addEventListener('click', () => step(1));
-    document.addEventListener('keydown', keyHandler);
-
-    overlay.focus();
-  }
-</script>
+  </script>
 </body>
 </html>
