@@ -66,20 +66,24 @@
                 ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
               </div>
 
+             <span class="museum-label">
               <span class="caption">
                 <span class="caption-title">${title}</span>
                 ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` :
                          (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : '')}
               </span>
-
+            
+              <span class="museum-rule" aria-hidden="true"></span>
+            
               ${(camera || lens || film || place) ? `
-                <ul class="meta">
+                <ul class="meta meta--stack">
                   ${camera ? `<li class="meta-item" title="Camera">📷 ${camera}</li>` : ''}
                   ${lens   ? `<li class="meta-item" title="Lens">🔭 ${lens}</li>` : ''}
                   ${film   ? `<li class="meta-item" title="Film">🎞️ ${film}</li>` : ''}
                   ${place  ? `<li class="meta-item" title="Location">📍 ${place}</li>` : ''}
                 </ul>
               ` : ''}
+            </span>
             </a>
           `;
         }).join('');
