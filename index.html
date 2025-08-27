@@ -8,11 +8,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" href="/favicon.ico">
-  <meta property="og:title" content="Chiyuen Chung">
+  <meta property="og:title" content="Chi Yuen Chung">
   <meta property="og:description" content="35mm and medium-format">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chiyuenchung.com/">
-  <link rel="stylesheet" href="./css/styles.css?v=4">
+  <link rel="stylesheet" href="./css/styles.css?v=5">
 </head>
 <body>
   <header>
@@ -36,7 +36,7 @@
         const res = await fetch('/img/photos.json?v=' + Date.now());
         const photos = await res.json();
 
-        // newest-first using precise timestamp if present, else date
+        // newest-first by timestamp
         photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
         galleryPhotos = photos;
 
@@ -45,13 +45,13 @@
           const title = p.title || base;
           const alt = (p.alt || title || base).replace(/"/g, '&quot;');
 
-          // CSV-sourced fields (may be empty if not set in sheet)
+          // CSV-sourced metadata
           const camera = p.camera || '';
           const lens   = p.lens   || '';
           const film   = p.film   || '';
           const place  = p.location || '';
-          const shot   = p.shot_date || '';   // preferred date (from sheet)
-          const commit = p.date || '';        // fallback date (from build)
+          const shot   = p.date_taken || '';   // from sheet
+          const commit = p.date || '';         // fallback from commit
 
           return `
             <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
@@ -92,7 +92,7 @@
     }
     renderGallery();
 
-    // Lightbox with arrows + keyboard
+    // Lightbox
     document.addEventListener('click', e => {
       const a = e.target.closest('a.card');
       if (!a) return;
@@ -128,12 +128,12 @@
       const prevBtn = document.createElement('button');
       prevBtn.className = 'lb-arrow lb-prev';
       prevBtn.setAttribute('aria-label', 'Previous photo');
-      prevBtn.textContent = '‹';
+      prevBtn.innerHTML = '&#10094;';
 
       const nextBtn = document.createElement('button');
       nextBtn.className = 'lb-arrow lb-next';
       nextBtn.setAttribute('aria-label', 'Next photo');
-      nextBtn.textContent = '›';
+      nextBtn.innerHTML = '&#10095;';
 
       overlay.appendChild(closeBtn);
       overlay.appendChild(prevBtn);
