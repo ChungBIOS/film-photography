@@ -20,12 +20,14 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SHEET_CSV_URL: ${{ secrets.SHEET_CSV_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0  # need full history for git log timestamps
+          fetch-depth: 0
 
       - name: Install ImageMagick
         run: |
@@ -53,156 +55,117 @@ jobs:
             done
           done
 
-      - name: Fetch metadata CSV from Google Sheets
-        env:
-          SHEET_CSV_URL: ${{ secrets.SHEET_CSV_URL }}
-        run: |
-          set -euo pipefail
-          if [ -z "${SHEET_CSV_URL:-}" ]; then
-            echo "SHEET_CSV_URL secret is not set"; exit 1
-          fi
-          curl -fsSL "$SHEET_CSV_URL" -o sheet.csv
-          echo "Downloaded sheet.csv ($(wc -c < sheet.csv) bytes)"
-
-      - name: Build img/photos.json by merging CSV metadata
+      - name: Build img/photos.json from originals (newest first)
         shell: bash
         run: |
           set -euo pipefail
-          python3 - << 'PY'
-          import csv, json, os, subprocess, sys, re
-          from datetime import datetime
+          shopt -s nullglob nocaseglob
 
-          # Helpers
-          def git_ts(path):
-            try:
-              # ISO 8601 commit time of last change to this path
-              return subprocess.check_output(
-                ["git","log","-1","--format=%cI","--",path],
-                text=True
-              ).strip()
-            except subprocess.CalledProcessError:
-              return ""
+          # Collect "<ISO8601> <stem>" from originals and sort newest-first
+          mapfile -t LINES < <(
+            for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
+              stem="$(basename "${f%.*}")"
+              ts="$(git log -1 --format=%cI -- "$f" 2>/dev/null || echo 1970-01-01T00:00:00Z)"
+              echo "$ts $stem"
+            done | LC_ALL=C sort -r
+          )
 
-          def find_original(base):
-            # return the first existing original path for this base
-            for ext in (".jpg",".jpeg",".JPG",".JPEG"):
-              p = os.path.join("img","originals", base + ext)
-              if os.path.isfile(p):
-                return p
-            return None
+          # De-duplicate by stem, keeping newest
+          mapfile -t UNIQUE < <(printf "%s\n" "${LINES[@]}" | awk '!seen[$2]++')
 
-          def has_resized(base):
-            return all(os.path.isfile(os.path.join("img", f"{base}-{s}.jpg")) for s in (640,1280,2560))
+          : > img/photos.json
+          echo "[" >> img/photos.json
+          first=1
+          for line in "${UNIQUE[@]}"; do
+            ts="${line%% *}"
+            b="${line#* }"
+            if [[ -f "img/${b}-640.jpg" && -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
+              date_short="${ts%%T*}"  # commit date (YYYY-MM-DD)
+              if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
+              first=0
+              printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s","ts":"%s"}' \
+                "$b" "$b" "$b" "$b" "$date_short" "$ts" >> img/photos.json
+            fi
+          done
+          echo ""  >> img/photos.json
+          echo "]" >> img/photos.json
 
-          def parse_date(s):
-            # Accept YYYY-MM-DD (preferred). Return datetime or None.
-            if not s: return None
-            try:
-              return datetime.strptime(s.strip(), "%Y-%m-%d")
-            except ValueError:
-              return None
+      - name: Merge CSV metadata (adds `taken`, camera, lens, film, location, tags)
+        if: env.SHEET_CSV_URL != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import csv, io, json, os, sys, urllib.request
 
-          # Load CSV (tolerant header names)
-          meta = {}
-          if os.path.isfile("sheet.csv") and os.path.getsize("sheet.csv") > 0:
-            with open("sheet.csv", newline="", encoding="utf-8") as f:
-              reader = csv.DictReader(f)
-              # normalize headers
-              def norm(k): return (k or "").strip().lower()
-              for row in reader:
-                row_n = { norm(k): (v or "").strip() for k,v in row.items() }
-                b = row_n.get("base") or row_n.get("id") or row_n.get("filename") or ""
-                b = re.sub(r"\.(jpg|jpeg)$","", b, flags=re.IGNORECASE).strip()
-                if not b: continue
-                # Keep the latest occurrence (later rows override earlier)
-                meta[b] = {
-                  "title":     row_n.get("title","") or b,
-                  "date":      row_n.get("date",""),     # YYYY-MM-DD preferred
-                  "camera":    row_n.get("camera",""),
-                  "lens":      row_n.get("lens",""),
-                  "film":      row_n.get("film",""),
-                  "location":  row_n.get("location",""),
-                  "overlay":   row_n.get("overlay",""),
-                  "alt":       row_n.get("alt",""),
-                  # any tags column, comma/space separated
-                  "tags": [t for t in re.split(r"[;,]\s*|\s{2,}", row_n.get("tags","")) if t] if "tags" in row_n else []
-                }
+          photos_path = "img/photos.json"
 
-          # Walk originals (dedupe by base)
-          seen = set()
-          entries = []
-          originals_dir = os.path.join("img","originals")
-          for name in os.listdir(originals_dir) if os.path.isdir(originals_dir) else []:
-            root, ext = os.path.splitext(name)
-            if ext.lower() not in (".jpg",".jpeg"): continue
-            base = root
-            if base in seen: continue
-            seen.add(base)
+          # Load current photos.json
+          with open(photos_path, "r", encoding="utf-8") as f:
+            photos = json.load(f)
+          by_base = {p["base"]: p for p in photos}
 
-            if not has_resized(base):
-              # Skip until resized variants exist (first step handles this)
+          # Download CSV
+          url = os.environ.get("SHEET_CSV_URL", "").strip()
+          if not url:
+            print("SHEET_CSV_URL not set; skipping CSV merge.")
+            sys.exit(0)
+
+          with urllib.request.urlopen(url) as resp:
+            content = resp.read().decode("utf-8")
+
+          # Read CSV with flexible headers
+          reader = csv.DictReader(io.StringIO(content))
+          def norm(h):
+            return h.strip().lower()
+
+          # header normalization map
+          # supports "date_taken (YYYY-MM-DD)" or "date_taken" etc.
+          header_map = {}
+          for h in reader.fieldnames or []:
+            hl = norm(h)
+            if hl.startswith("date_taken"):
+              header_map[h] = "date_taken"
+            elif hl.startswith("tags"):
+              header_map[h] = "tags"
+            else:
+              header_map[h] = hl  # base, title, camera, lens, film, location, overlay, alt
+
+          for row in reader:
+            # normalize keys
+            r = { header_map[k]: (row[k] or "").strip() for k in row }
+
+            base = r.get("base","").strip()
+            if not base or base not in by_base:
               continue
 
-            m = meta.get(base, {})
-            title = m.get("title") or base
-            alt   = m.get("alt") or title or base
-            overlay = m.get("overlay") or base
+            p = by_base[base]
 
-            # Prefer "date" from sheet; else blank
-            date_str = (m.get("date") or "").strip()
-            date_dt = parse_date(date_str)
+            # Simple fields (if provided)
+            for key in ["title","overlay","alt","camera","lens","film","location"]:
+              val = r.get(key,"").strip()
+              if val:
+                p[key] = val
 
-            # ts (for ordering): prefer sheet date at 00:00Z; else commit time of original; else commit of -640; else ""
-            ts = ""
-            if date_dt:
-              ts = date_dt.strftime("%Y-%m-%dT00:00:00Z")
+            # tags: comma separated -> array
+            tags = r.get("tags","").strip()
+            if tags:
+              p["tags"] = [t.strip() for t in tags.split(",") if t.strip()]
             else:
-              orig = find_original(base)
-              ts = git_ts(orig) if orig else ""
-              if not ts:
-                ts = git_ts(os.path.join("img", f"{base}-640.jpg"))
+              p.setdefault("tags", [])
 
-            # Presentational date: sheet date if valid, else derive from ts if present
-            if not date_dt and ts:
-              try:
-                date_dt = datetime.fromisoformat(ts.replace("Z","+00:00")).date()
-                date_str = date_dt.isoformat()
-              except Exception:
-                date_str = ""
+            # date_taken -> taken (fallback to commit date)
+            shot = r.get("date_taken","").strip()
+            if shot:
+              p["taken"] = shot
+            else:
+              p["taken"] = p.get("date")  # fallback
 
-            entry = {
-              "base": base,
-              "title": title,
-              "overlay": overlay,
-              "alt": alt,
-              "date": date_str,   # taken date from sheet (preferred)
-              "ts": ts,           # for ordering fallback
-              "camera":   m.get("camera",""),
-              "lens":     m.get("lens",""),
-              "film":     m.get("film",""),
-              "location": m.get("location",""),
-              "tags":     m.get("tags",[])
-            }
-            entries.append(entry)
-
-          # Sort newest-first: date (if present) then ts
-          def sort_key(e):
-            # try date first
-            d = parse_date(e.get("date",""))
-            if d: return (d, e.get("ts",""))
-            # else ts
-            t = e.get("ts","")
-            try:
-              return (datetime.fromisoformat(t.replace("Z","+00:00")), t)
-            except Exception:
-              return (datetime.min, "")
-          entries.sort(key=sort_key, reverse=True)
-
-          # Write JSON
-          os.makedirs("img", exist_ok=True)
-          with open(os.path.join("img","photos.json"), "w", encoding="utf-8") as f:
-            json.dump(entries, f, ensure_ascii=False, indent=2)
-          print(f"Wrote img/photos.json with {len(entries)} entries")
+          # Write back
+          with open(photos_path, "w", encoding="utf-8") as f:
+            json.dump(photos, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+          print("Merged CSV metadata into img/photos.json (added `taken`).")
           PY
 
       - name: Commit and push generated files safely
@@ -220,7 +183,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Resize photos + update manifest (merged with sheet CSV)"
+          git commit -m "Resize photos + update manifest (CSV merged)"
           if ! git push; then
             git pull --rebase --autostash
             git push
