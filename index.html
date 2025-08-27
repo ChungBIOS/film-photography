@@ -28,54 +28,70 @@
 
   <!-- gallery renderer -->
   <script>
-    async function renderGallery() {
-      const el = document.getElementById('gallery');
-      try {
-        const res = await fetch('/img/photos.json?v=' + Date.now());
-        const photos = await res.json();
+  async function renderGallery() {
+    const el = document.getElementById('gallery');
+    try {
+      const res = await fetch('/img/photos.json?v=' + Date.now());
+      const photos = await res.json();
 
-        // newest-first using precise timestamp if present, else date
-        photos.sort((a, b) => {
-          const A = a.ts || a.date || '';
-          const B = b.ts || b.date || '';
-          return new Date(B) - new Date(A);
-        });
+      // newest-first using precise timestamp if present, else date
+      photos.sort((a, b) => {
+        const A = a.ts || a.date || '';
+        const B = b.ts || b.date || '';
+        return new Date(B) - new Date(A);
+      });
 
-        const html = photos.map(p => {
-          const base = p.base;
-          const title = p.title || base;
-          const alt = (p.alt || title || base).replace(/"/g, '&quot;');
-          const dateISO = p.date || '';   // "YYYY-MM-DD"
-          const dateBadge = dateISO ? `<time class="date-badge" datetime="${dateISO}">${dateISO}</time>` : '';
+      const html = photos.map(p => {
+        const base = p.base;
+        const title = p.title || base;
+        const alt = (p.alt || title || base).replace(/"/g, '&quot;');
+        const dateISO = p.date || ''; // "YYYY-MM-DD"
 
-          return `
-            <a class="card" href="/img/${base}-2560.jpg" aria-label="Open full-size image of ${alt}">
-              <div class="square">
-                <img
-                  src="/img/${base}-640.jpg"
-                  srcset="/img/${base}-640.jpg 640w,
-                          /img/${base}-1280.jpg 1280w,
-                          /img/${base}-2560.jpg 2560w"
-                  sizes="(max-width: 900px) 90vw, 480px"
-                  alt="${alt}" loading="lazy" />
-                ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-              </div>
-              <span class="caption">
-                <span class="caption-title">${title}</span>
-                ${dateBadge}
-              </span>
-            </a>
-          `;
-        }).join('');
+        // CSV-only fields we want to test/display
+        const camera = p.camera || '';         // ← comes from the CSV
+        const lens   = p.lens   || '';         // optional: CSV
+        const film   = p.film   || '';         // optional: CSV
+        const place  = p.location || '';       // optional: CSV
+        const shot   = p.shot_date || '';      // optional: CSV "YYYY-MM-DD"
 
-        el.innerHTML = html || '<p class="center">No photos yet.</p>';
-      } catch (e) {
-        console.error('Failed to load photos.json', e);
-        el.innerHTML = '<p class="center">Loading photos…</p>';
-      }
+        return `
+          <a class="card" href="/img/${base}-2560.jpg" aria-label="Open full-size image of ${alt}">
+            <div class="square">
+              <img
+                src="/img/${base}-640.jpg"
+                srcset="/img/${base}-640.jpg 640w,
+                        /img/${base}-1280.jpg 1280w,
+                        /img/${base}-2560.jpg 2560w"
+                sizes="(max-width: 900px) 90vw, 480px"
+                alt="${alt}" loading="lazy" />
+              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+            </div>
+
+            <span class="caption">
+              <span class="caption-title">${title}</span>
+              ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` : (dateISO ? `<time class="date-badge" datetime="${dateISO}">${dateISO}</time>` : '')}
+            </span>
+
+            ${(camera || lens || film || place) ? `
+              <ul class="meta">
+                ${camera ? `<li class="meta-item" title="Camera">📷 ${camera}</li>` : ''}
+                ${lens   ? `<li class="meta-item" title="Lens">🔭 ${lens}</li>` : ''}
+                ${film   ? `<li class="meta-item" title="Film">🎞️ ${film}</li>` : ''}
+                ${place  ? `<li class="meta-item" title="Location">📍 ${place}</li>` : ''}
+              </ul>
+            ` : ''}
+          </a>
+        `;
+      }).join('');
+
+      el.innerHTML = html || '<p class="center">No photos yet.</p>';
+    } catch (e) {
+      console.error('Failed to load photos.json', e);
+      el.innerHTML = '<p class="center">Loading photos…</p>';
     }
-    renderGallery();
-  </script>
+  }
+  renderGallery();
+</script>
 
   <!-- lightbox -->
  <script>
