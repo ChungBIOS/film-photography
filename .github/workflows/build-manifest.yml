@@ -88,6 +88,97 @@ jobs:
           done
           echo ""  >> img/photos.json
           echo "]" >> img/photos.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Google Sheets client
+        run: pip install --quiet google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+      - name: Merge metadata from Google Sheet into photos.json
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, sys, pathlib
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+
+          ROOT = pathlib.Path(__file__).resolve().parents[2]  # repo root
+          photos_path = ROOT / "img" / "photos.json"
+
+          # Load current photos.json (already created earlier in your job)
+          with open(photos_path, "r", encoding="utf-8") as f:
+            photos = json.load(f)
+
+          # Auth to Sheets
+          info = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+          creds = service_account.Credentials.from_service_account_info(
+              info,
+              scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"]
+          )
+          service = build("sheets", "v4", credentials=creds)
+
+          # Read rows from the "Photos" sheet
+          SHEET_ID = os.environ["SHEET_ID"]
+          rng = "Photos!A:Z"
+          resp = service.spreadsheets().values().get(spreadsheetId=SHEET_ID, range=rng).execute()
+          rows = resp.get("values", [])
+
+          if not rows:
+            print("No rows found in Google Sheet; leaving photos.json unchanged.")
+            sys.exit(0)
+
+          # Build a lookup from header row
+          headers = [h.strip().lower() for h in rows[0]]
+          idx = {h:i for i,h in enumerate(headers)}
+
+          def val(row, key):
+            i = idx.get(key)
+            return (row[i].strip() if i is not None and i < len(row) else "")
+
+          # Convert sheet to dict keyed by base
+          sheet = {}
+          for row in rows[1:]:
+            base = val(row, "base")
+            if not base:
+              continue
+            sheet[base] = {
+              "title":    val(row, "title")    or None,
+              "date":     val(row, "date")     or None,   # taken date you want displayed
+              "camera":   val(row, "camera")   or None,
+              "lens":     val(row, "lens")     or None,
+              "film":     val(row, "film")     or None,
+              "location": val(row, "location") or None,
+              "tags":     [t.strip() for t in val(row, "tags").split(",")] if val(row, "tags") else None
+            }
+
+          # Merge: for each photo in JSON, override from sheet if present
+          by_base = {p["base"]: p for p in photos}
+          for base, meta in sheet.items():
+            p = by_base.get(base)
+            if not p:
+              # Optional: if a row exists for an image not yet generated, skip
+              continue
+            # Update fields when provided
+            if meta["title"]    is not None: p["title"]    = meta["title"]
+            if meta["date"]     is not None: p["date"]     = meta["date"]  # replaces commit date
+            if meta["camera"]   is not None: p["camera"]   = meta["camera"]
+            if meta["lens"]     is not None: p["lens"]     = meta["lens"]
+            if meta["film"]     is not None: p["film"]     = meta["film"]
+            if meta["location"] is not None: p["location"] = meta["location"]
+            if meta["tags"]     is not None: p["tags"]     = meta["tags"]
+
+          # Write back
+          with open(photos_path, "w", encoding="utf-8") as f:
+            json.dump(photos, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+          print("Merged sheet metadata into img/photos.json")
+          PY
       
 
       - name: Commit and push generated files safely
