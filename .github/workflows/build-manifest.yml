@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0  # ensure git log has full history
+          fetch-depth: 0  # need full history for git log timestamps
 
       - name: Install ImageMagick
         run: |
@@ -53,133 +53,157 @@ jobs:
             done
           done
 
-      - name: Build img/photos.json from originals (newest first)
+      - name: Fetch metadata CSV from Google Sheets
+        env:
+          SHEET_CSV_URL: ${{ secrets.SHEET_CSV_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SHEET_CSV_URL:-}" ]; then
+            echo "SHEET_CSV_URL secret is not set"; exit 1
+          fi
+          curl -fsSL "$SHEET_CSV_URL" -o sheet.csv
+          echo "Downloaded sheet.csv ($(wc -c < sheet.csv) bytes)"
+
+      - name: Build img/photos.json by merging CSV metadata
         shell: bash
         run: |
           set -euo pipefail
+          python3 - << 'PY'
+          import csv, json, os, subprocess, sys, re
+          from datetime import datetime
 
-          # Collect "<ISO8601> <stem>" for all originals
-          mapfile -t LINES < <(
-            shopt -s nullglob nocaseglob
-            for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
-              stem="$(basename "${f%.*}")"
-              ts="$(git log -1 --format=%cI -- "$f" 2>/dev/null || echo 1970-01-01T00:00:00Z)"
-              echo "$ts $stem"
-            done | LC_ALL=C sort -r
-          )
+          # Helpers
+          def git_ts(path):
+            try:
+              # ISO 8601 commit time of last change to this path
+              return subprocess.check_output(
+                ["git","log","-1","--format=%cI","--",path],
+                text=True
+              ).strip()
+            except subprocess.CalledProcessError:
+              return ""
 
-          # De-duplicate by stem, keeping the first (newest) timestamped line
-          mapfile -t UNIQUE < <(printf "%s\n" "${LINES[@]}" | awk '!seen[$2]++')
+          def find_original(base):
+            # return the first existing original path for this base
+            for ext in (".jpg",".jpeg",".JPG",".JPEG"):
+              p = os.path.join("img","originals", base + ext)
+              if os.path.isfile(p):
+                return p
+            return None
 
-          # Build photos.json
-          : > img/photos.json
-          echo "[" >> img/photos.json
-          first=1
-          for line in "${UNIQUE[@]}"; do
-            ts="${line%% *}"
-            b="${line#* }"
-            if [[ -f "img/${b}-640.jpg" && -f "img/${b}-1280.jpg" && -f "img/${b}-2560.jpg" ]]; then
-              date_short="${ts%%T*}"
-              if [[ $first -eq 0 ]]; then echo "," >> img/photos.json; fi
-              first=0
-              printf '  {"base":"%s","title":"%s","overlay":"%s","alt":"%s","date":"%s","ts":"%s"}' \
-                "$b" "$b" "$b" "$b" "$date_short" "$ts" >> img/photos.json
-            fi
-          done
-          echo ""  >> img/photos.json
-          echo "]" >> img/photos.json
+          def has_resized(base):
+            return all(os.path.isfile(os.path.join("img", f"{base}-{s}.jpg")) for s in (640,1280,2560))
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+          def parse_date(s):
+            # Accept YYYY-MM-DD (preferred). Return datetime or None.
+            if not s: return None
+            try:
+              return datetime.strptime(s.strip(), "%Y-%m-%d")
+            except ValueError:
+              return None
 
-      - name: Install Google Sheets client
-        run: pip install --quiet google-api-python-client google-auth-httplib2 google-auth-oauthlib
+          # Load CSV (tolerant header names)
+          meta = {}
+          if os.path.isfile("sheet.csv") and os.path.getsize("sheet.csv") > 0:
+            with open("sheet.csv", newline="", encoding="utf-8") as f:
+              reader = csv.DictReader(f)
+              # normalize headers
+              def norm(k): return (k or "").strip().lower()
+              for row in reader:
+                row_n = { norm(k): (v or "").strip() for k,v in row.items() }
+                b = row_n.get("base") or row_n.get("id") or row_n.get("filename") or ""
+                b = re.sub(r"\.(jpg|jpeg)$","", b, flags=re.IGNORECASE).strip()
+                if not b: continue
+                # Keep the latest occurrence (later rows override earlier)
+                meta[b] = {
+                  "title":     row_n.get("title","") or b,
+                  "date":      row_n.get("date",""),     # YYYY-MM-DD preferred
+                  "camera":    row_n.get("camera",""),
+                  "lens":      row_n.get("lens",""),
+                  "film":      row_n.get("film",""),
+                  "location":  row_n.get("location",""),
+                  "overlay":   row_n.get("overlay",""),
+                  "alt":       row_n.get("alt",""),
+                  # any tags column, comma/space separated
+                  "tags": [t for t in re.split(r"[;,]\s*|\s{2,}", row_n.get("tags","")) if t] if "tags" in row_n else []
+                }
 
-      - name: Merge metadata from Google Sheet into photos.json
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
-          SHEET_ID: ${{ secrets.SHEET_ID }}
-        shell: bash
-        run: |
-          python - <<'PY'
-          import json, os, sys, pathlib
-          from google.oauth2 import service_account
-          from googleapiclient.discovery import build
+          # Walk originals (dedupe by base)
+          seen = set()
+          entries = []
+          originals_dir = os.path.join("img","originals")
+          for name in os.listdir(originals_dir) if os.path.isdir(originals_dir) else []:
+            root, ext = os.path.splitext(name)
+            if ext.lower() not in (".jpg",".jpeg"): continue
+            base = root
+            if base in seen: continue
+            seen.add(base)
 
-          ROOT = pathlib.Path(__file__).resolve().parents[2]  # repo root
-          photos_path = ROOT / "img" / "photos.json"
-
-          # Load current photos.json (already created earlier in your job)
-          with open(photos_path, "r", encoding="utf-8") as f:
-            photos = json.load(f)
-
-          # Auth to Sheets
-          info = json.loads(os.environ["GOOGLE_CREDENTIALS"])
-          creds = service_account.Credentials.from_service_account_info(
-              info,
-              scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"]
-          )
-          service = build("sheets", "v4", credentials=creds)
-
-          # Read rows from the "Photos" sheet
-          SHEET_ID = os.environ["SHEET_ID"]
-          rng = "Photos!A:Z"
-          resp = service.spreadsheets().values().get(spreadsheetId=SHEET_ID, range=rng).execute()
-          rows = resp.get("values", [])
-
-          if not rows:
-            print("No rows found in Google Sheet; leaving photos.json unchanged.")
-            sys.exit(0)
-
-          # Build a lookup from header row
-          headers = [h.strip().lower() for h in rows[0]]
-          idx = {h:i for i,h in enumerate(headers)}
-
-          def val(row, key):
-            i = idx.get(key)
-            return (row[i].strip() if i is not None and i < len(row) else "")
-
-          # Convert sheet to dict keyed by base
-          sheet = {}
-          for row in rows[1:]:
-            base = val(row, "base")
-            if not base:
+            if not has_resized(base):
+              # Skip until resized variants exist (first step handles this)
               continue
-            sheet[base] = {
-              "title":    val(row, "title")    or None,
-              "date":     val(row, "date")     or None,   # taken date you want displayed
-              "camera":   val(row, "camera")   or None,
-              "lens":     val(row, "lens")     or None,
-              "film":     val(row, "film")     or None,
-              "location": val(row, "location") or None,
-              "tags":     [t.strip() for t in val(row, "tags").split(",")] if val(row, "tags") else None
+
+            m = meta.get(base, {})
+            title = m.get("title") or base
+            alt   = m.get("alt") or title or base
+            overlay = m.get("overlay") or base
+
+            # Prefer "date" from sheet; else blank
+            date_str = (m.get("date") or "").strip()
+            date_dt = parse_date(date_str)
+
+            # ts (for ordering): prefer sheet date at 00:00Z; else commit time of original; else commit of -640; else ""
+            ts = ""
+            if date_dt:
+              ts = date_dt.strftime("%Y-%m-%dT00:00:00Z")
+            else:
+              orig = find_original(base)
+              ts = git_ts(orig) if orig else ""
+              if not ts:
+                ts = git_ts(os.path.join("img", f"{base}-640.jpg"))
+
+            # Presentational date: sheet date if valid, else derive from ts if present
+            if not date_dt and ts:
+              try:
+                date_dt = datetime.fromisoformat(ts.replace("Z","+00:00")).date()
+                date_str = date_dt.isoformat()
+              except Exception:
+                date_str = ""
+
+            entry = {
+              "base": base,
+              "title": title,
+              "overlay": overlay,
+              "alt": alt,
+              "date": date_str,   # taken date from sheet (preferred)
+              "ts": ts,           # for ordering fallback
+              "camera":   m.get("camera",""),
+              "lens":     m.get("lens",""),
+              "film":     m.get("film",""),
+              "location": m.get("location",""),
+              "tags":     m.get("tags",[])
             }
+            entries.append(entry)
 
-          # Merge: for each photo in JSON, override from sheet if present
-          by_base = {p["base"]: p for p in photos}
-          for base, meta in sheet.items():
-            p = by_base.get(base)
-            if not p:
-              # Optional: if a row exists for an image not yet generated, skip
-              continue
-            # Update fields when provided
-            if meta["title"]    is not None: p["title"]    = meta["title"]
-            if meta["date"]     is not None: p["date"]     = meta["date"]  # replaces commit date
-            if meta["camera"]   is not None: p["camera"]   = meta["camera"]
-            if meta["lens"]     is not None: p["lens"]     = meta["lens"]
-            if meta["film"]     is not None: p["film"]     = meta["film"]
-            if meta["location"] is not None: p["location"] = meta["location"]
-            if meta["tags"]     is not None: p["tags"]     = meta["tags"]
+          # Sort newest-first: date (if present) then ts
+          def sort_key(e):
+            # try date first
+            d = parse_date(e.get("date",""))
+            if d: return (d, e.get("ts",""))
+            # else ts
+            t = e.get("ts","")
+            try:
+              return (datetime.fromisoformat(t.replace("Z","+00:00")), t)
+            except Exception:
+              return (datetime.min, "")
+          entries.sort(key=sort_key, reverse=True)
 
-          # Write back
-          with open(photos_path, "w", encoding="utf-8") as f:
-            json.dump(photos, f, ensure_ascii=False, indent=2)
-            f.write("\n")
-          print("Merged sheet metadata into img/photos.json")
+          # Write JSON
+          os.makedirs("img", exist_ok=True)
+          with open(os.path.join("img","photos.json"), "w", encoding="utf-8") as f:
+            json.dump(entries, f, ensure_ascii=False, indent=2)
+          print(f"Wrote img/photos.json with {len(entries)} entries")
           PY
-      
 
       - name: Commit and push generated files safely
         shell: bash
@@ -196,8 +220,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Resize photos + update manifest"
-
+          git commit -m "Resize photos + update manifest (merged with sheet CSV)"
           if ! git push; then
             git pull --rebase --autostash
             git push
