@@ -28,140 +28,146 @@
   <footer>
     <p>© 2025 Chi Yuen Chung</p>
   </footer>
-<script>
+  <script>
   let galleryPhotos = [];
   let currentIndex = -1;
 
-  // helpers
-  const getParam = (name) => new URLSearchParams(location.search).get(name);
+  // ---------- helpers ----------
   const norm = s => (s || "").toString().trim().toLowerCase();
+  const getAll = (search, key) =>
+    (search.get(key) || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(norm);
 
-  // Tag URL helpers (multi-select)
-  function buildTagUrl(tags) {
-    if (!tags.length) return '/';
-    return '/?tags=' + encodeURIComponent(tags.join(','));
+  const uniq = arr => [...new Set(arr)];
+
+  function buildURL(state){
+    const qs = new URLSearchParams();
+    if (state.tags?.length)   qs.set("tags",   uniq(state.tags).join(","));
+    if (state.camera?.length) qs.set("camera", uniq(state.camera).join(","));
+    if (state.lens?.length)   qs.set("lens",   uniq(state.lens).join(","));
+    if (state.film?.length)   qs.set("film",   uniq(state.film).join(","));
+    const s = qs.toString();
+    return s ? "/?" + s : "/";
   }
-  function addTag(arr, tag) {
-    return arr.includes(tag) ? arr : [...arr, tag];
+  function addFacet(state, facet, value){
+    const next = JSON.parse(JSON.stringify(state));
+    const v = norm(value);
+    next[facet] = uniq([...(next[facet] || []), v]);
+    return next;
   }
-  function removeTag(arr, tag) {
-    return arr.filter(t => t !== tag);
+  function removeFacet(state, facet, value){
+    const next = JSON.parse(JSON.stringify(state));
+    const v = norm(value);
+    next[facet] = (next[facet] || []).filter(x => x !== v);
+    return next;
   }
 
-  // Render
-  async function renderGallery() {
-    const el = document.getElementById('gallery');
-    const tagBar = document.getElementById('tag-filter-bar');
+  function readState(){
+    const params = new URLSearchParams(location.search);
+    return {
+      tags:   getAll(params, "tags"),
+      camera: getAll(params, "camera"),
+      lens:   getAll(params, "lens"),
+      film:   getAll(params, "film"),
+    };
+  }
 
-    // multiple tags param (AND mode)
-    const activeTagsRaw = getParam('tags');
-    const activeTags = activeTagsRaw
-      ? activeTagsRaw.split(',').map(t => norm(t)).filter(Boolean)
-      : [];
+  // ---------- render ----------
+  async function renderGallery(){
+    const el = document.getElementById("gallery");
+    const tagBar = document.getElementById("tag-filter-bar");
+    const state = readState();
 
-    try {
-      const res = await fetch('/img/photos.json?v=' + Date.now());
+    try{
+      const res = await fetch("/img/photos.json?v=" + Date.now());
       const incoming = await res.json();
 
-      // normalize tags + build searchable token set (tags + camera/lens/film tokens)
+      // normalize tags
       const photos = incoming.map(p => {
         let tags = [];
         if (Array.isArray(p.tags)) tags = p.tags;
-        else if (p.tags) tags = String(p.tags).split(',').map(t => t.trim()).filter(Boolean);
-
-        // facet tokens
-        const facetTokens = [];
-        if (p.camera) facetTokens.push(`camera:${p.camera}`);
-        if (p.lens)   facetTokens.push(`lens:${p.lens}`);
-        if (p.film)   facetTokens.push(`film:${p.film}`);
-
-        // everything we can filter on:
-        const searchTokens = [
-          ...tags,
-          ...facetTokens
-        ].map(norm);
-
-        return { ...p, tags, facetTokens, searchTokens };
+        else if (p.tags) tags = String(p.tags).split(",").map(t => t.trim()).filter(Boolean);
+        return { ...p, tags };
       });
 
-      // newest-first by commit timestamp/date
-      photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
+      // newest-first
+      photos.sort((a,b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
 
-      // filter by AND of activeTags
-      const filtered = activeTags.length
-        ? photos.filter(p => activeTags.every(tag => p.searchTokens.includes(tag)))
-        : photos;
+      // AND filter across all selected facets
+      const filtered = photos.filter(p => {
+        const pTags   = (p.tags || []).map(norm);
+        const pCamera = norm(p.camera);
+        const pLens   = norm(p.lens);
+        const pFilm   = norm(p.film);
+
+        // every selected tag must be present
+        if (state.tags.length && !state.tags.every(t => pTags.includes(t))) return false;
+        if (state.camera.length && !state.camera.includes(pCamera)) return false;
+        if (state.lens.length && !state.lens.includes(pLens)) return false;
+        if (state.film.length && !state.film.includes(pFilm)) return false;
+        return true;
+      });
 
       galleryPhotos = filtered;
 
-      // Top banner with nice labels for active filters
-      if (activeTags.length) {
+      // banner chips (removable)
+      const chips = []
+        .concat((state.tags   || []).map(v => ({facet:"tags",   label:"#"+v,  v})))
+        .concat((state.camera || []).map(v => ({facet:"camera", label:"📷 "+v, v})))
+        .concat((state.lens   || []).map(v => ({facet:"lens",   label:"🔭 "+v, v})))
+        .concat((state.film   || []).map(v => ({facet:"film",   label:"🎞️ "+v, v})));
+
+      if (chips.length){
         tagBar.hidden = false;
-
-        const pillHTML = activeTags.map(t => {
-          // pretty label for facet tokens
-          let label = `#${t}`;
-          if (t.startsWith('camera:')) label = `📷 ${t.slice(7)}`;
-          else if (t.startsWith('lens:')) label = `🔭 ${t.slice(5)}`;
-          else if (t.startsWith('film:')) label = `🎞️ ${t.slice(5)}`;
-
-          return `
-            <span class="tag-pill tag-pill--solid">
-              ${label}
-              <a href="${buildTagUrl(removeTag(activeTags, t))}" class="tag-clear" aria-label="Remove filter">×</a>
-            </span>
-          `;
-        }).join('');
-
         tagBar.innerHTML = `
           <div class="tag-filter-inner">
             <span>Filters:</span>
-            ${pillHTML}
-            <a class="tag-clear" href="/">Clear all</a>
+            ${chips.map(c => `
+              <span class="tag-pill tag-pill--solid">
+                ${c.label}
+                <a class="tag-clear" href="${buildURL(removeFacet(state, c.facet, c.v))}" aria-label="Remove ${c.label}">×</a>
+              </span>
+            `).join("")}
+            <a class="tag-clear" href="/" aria-label="Clear all filters">Clear all</a>
           </div>
         `;
-
-        document.title = `${activeTags.join(' · ')} — Chi Yuen Chung`;
+        document.title = `Filters — Chi Yuen Chung`;
       } else {
         tagBar.hidden = true;
-        document.title = 'Chi Yuen Chung';
+        document.title = "Chi Yuen Chung";
       }
 
-      // Cards
+      // cards
       const html = filtered.map((p, idx) => {
         const base   = p.base;
         const title  = p.title || base;
-        const alt    = (p.alt || title || base).replace(/"/g, '&quot;');
-        const camera = p.camera || '';
-        const lens   = p.lens   || '';
-        const film   = p.film   || '';
-        const place  = p.location || '';
-        const shot   = p.taken || '';  // preferred (sheet)
-        const commit = p.date  || '';  // fallback (commit)
+        const alt    = (p.alt || title || base).replace(/"/g, "&quot;");
+        const camera = p.camera || "";
+        const lens   = p.lens   || "";
+        const film   = p.film   || "";
+        const place  = p.location || "";
+        const shot   = p.taken || "";
+        const commit = p.date  || "";
 
-        // regular tag pills -> clicking adds tag
+        // tag pills (click to add tags)
         const tagPills = (p.tags && p.tags.length)
-          ? `<ul class="tags">` +
-              p.tags.map(t => {
-                const href = buildTagUrl(addTag(activeTags, norm(t)));
-                return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
-              }).join('') +
-            `</ul>`
-          : '';
+          ? `<ul class="tags">` + p.tags.map(t => {
+              const href = buildURL(addFacet(state, "tags", t));
+              return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
+            }).join("") + `</ul>`
+          : "";
 
-        // facet pills (camera/lens/film) -> clicking adds `camera:...` tokens
-        const facetPills = (camera || lens || film)
-          ? `<ul class="tags">` + [
-              camera ? `<li><a class="tag-pill" href="${buildTagUrl(addTag(activeTags, norm('camera:'+camera)))}">📷 ${camera}</a></li>` : '',
-              lens   ? `<li><a class="tag-pill" href="${buildTagUrl(addTag(activeTags, norm('lens:'+lens)))}">🔭 ${lens}</a></li>` : '',
-              film   ? `<li><a class="tag-pill" href="${buildTagUrl(addTag(activeTags, norm('film:'+film)))}">🎞️ ${film}</a></li>` : ''
-            ].join('') + `</ul>`
-          : '';
-
-        // non-click “museum” list (keep if you still want the stacked meta text)
-        const museumMeta = (place)
-          ? `<ul class="meta meta--stack"><li class="meta-item">📍 ${place}</li></ul>`
-          : '';
+        // build meta list with inline links (keeps layout solid)
+        const metaList = (camera || lens || film || place) ? `
+          <ul class="meta meta--stack">
+            ${camera ? `<li class="meta-item">📷 <a class="meta-link" href="${buildURL(addFacet(state, 'camera', camera))}">${camera}</a></li>` : ""}
+            ${lens   ? `<li class="meta-item">🔭 <a class="meta-link" href="${buildURL(addFacet(state, 'lens', lens))}">${lens}</a></li>`     : ""}
+            ${film   ? `<li class="meta-item">🎞️ <a class="meta-link" href="${buildURL(addFacet(state, 'film', film))}">${film}</a></li>`     : ""}
+            ${place  ? `<li class="meta-item">📍 ${place}</li>` : ""}
+          </ul>` : "";
 
         return `
           <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
@@ -173,36 +179,33 @@
                         /img/${base}-2560.jpg 2560w"
                 sizes="(max-width: 900px) 90vw, 480px"
                 alt="${alt}" loading="lazy" />
-              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ""}
             </div>
 
             <span class="museum-label">
               <span class="caption">
                 <span class="caption-title">${title}</span>
-                ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` :
-                         (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : '')}
+                ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>`
+                       : (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : "")}
               </span>
-
               <span class="museum-rule" aria-hidden="true"></span>
-
-              ${facetPills}
-              ${museumMeta}
+              ${metaList}
               ${tagPills}
             </span>
           </a>
         `;
-      }).join('');
+      }).join("");
 
       el.innerHTML = html || '<p class="center">No photos yet.</p>';
-    } catch (e) {
-      console.error('Failed to load photos.json', e);
-      el.innerHTML = '<p class="center">Loading photos…</p>';
+    } catch(err){
+      console.error("Failed to load photos.json", err);
+      document.getElementById("gallery").innerHTML = '<p class="center">Loading photos…</p>';
     }
   }
 
   renderGallery();
 
-  // Lightbox (unchanged)
+  // ---------- Lightbox (unchanged) ----------
   document.addEventListener('click', e => {
     const a = e.target.closest('a.card');
     if (!a) return;
@@ -211,7 +214,7 @@
     openLightbox(currentIndex);
   });
 
-  function openLightbox(index) {
+  function openLightbox(index){
     const photo = galleryPhotos[index];
     if (!photo) return;
 
@@ -272,6 +275,7 @@
     prevBtn.addEventListener('click', () => step(-1));
     nextBtn.addEventListener('click', () => step(1));
     document.addEventListener('keydown', keyHandler);
+
     overlay.focus();
   }
 </script>
