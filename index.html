@@ -33,7 +33,6 @@
   let galleryPhotos = [];
   let currentIndex = -1;
 
-  // helpers
   const getParam = (name) => new URLSearchParams(location.search).get(name);
   const norm = s => (s || "").toString().trim().toLowerCase();
 
@@ -41,7 +40,6 @@
     const el = document.getElementById('gallery');
     const tagBar = document.getElementById('tag-filter-bar');
 
-    // multiple tags param
     const activeTagsRaw = getParam('tags');
     const activeTags = activeTagsRaw
       ? activeTagsRaw.split(',').map(t => norm(t)).filter(Boolean)
@@ -51,7 +49,6 @@
       const res = await fetch('/img/photos.json?v=' + Date.now());
       const incoming = await res.json();
 
-      // normalize tags from JSON (array or comma string)
       const photos = incoming.map(p => {
         let tags = [];
         if (Array.isArray(p.tags)) tags = p.tags;
@@ -59,20 +56,18 @@
         return { ...p, tags };
       });
 
-      // sort newest-first
       photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
 
-      // filter by activeTags (AND mode)
       const filtered = activeTags.length
         ? photos.filter(p => {
             const ptags = (p.tags || []).map(norm);
-            return activeTags.every(tag => ptags.includes(tag));
+            return activeTags.every(tag => ptags.includes(tag)); // AND mode
           })
         : photos;
 
       galleryPhotos = filtered;
 
-      // filter banner
+      // Filter banner
       if (activeTags.length) {
         tagBar.hidden = false;
         tagBar.innerHTML = `
@@ -80,7 +75,7 @@
             <span>Showing tags:</span>
             ${activeTags.map(t => `
               <span class="tag-pill tag-pill--solid">#${t}
-                <a href="${buildTagUrl(removeTag(activeTags, t))}" class="tag-clear">×</a>
+                <a href="${buildTagUrl(removeTag(activeTags, t))}" class="tag-clear" aria-label="Remove ${t}">×</a>
               </span>
             `).join('')}
             <a class="tag-clear" href="/">Clear all</a>
@@ -104,7 +99,6 @@
         const shot   = p.taken || '';
         const commit = p.date  || '';
 
-        // tag pills
         const tagPills = (p.tags && p.tags.length)
           ? `<ul class="tags">` +
               p.tags.map(t => {
@@ -115,24 +109,26 @@
           : '';
 
         return `
-          <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
-            <div class="square">
-              <img
-                src="/img/${base}-640.jpg"
-                srcset="/img/${base}-640.jpg 640w,
-                        /img/${base}-1280.jpg 1280w,
-                        /img/${base}-2560.jpg 2560w"
-                sizes="(max-width: 900px) 90vw, 480px"
-                alt="${alt}" loading="lazy" />
-              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-            </div>
+          <article class="card" data-index="${idx}">
+            <a class="tile-link" href="/img/${base}-2560.jpg" aria-label="Open full-size image of ${alt}">
+              <div class="square">
+                <img
+                  src="/img/${base}-640.jpg"
+                  srcset="/img/${base}-640.jpg 640w,
+                          /img/${base}-1280.jpg 1280w,
+                          /img/${base}-2560.jpg 2560w"
+                  sizes="(max-width: 900px) 90vw, 480px"
+                  alt="${alt}" loading="lazy" />
+                ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+              </div>
+            </a>
 
-            <span class="museum-label">
-              <span class="caption">
+            <div class="museum-label">
+              <div class="caption">
                 <span class="caption-title">${title}</span>
                 ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` :
                          (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : '')}
-              </span>
+              </div>
 
               <span class="museum-rule" aria-hidden="true"></span>
 
@@ -146,19 +142,19 @@
               ` : ''}
 
               ${tagPills}
-            </span>
-          </a>
+            </div>
+          </article>
         `;
       }).join('');
 
       el.innerHTML = html || '<p class="center">No photos yet.</p>';
     } catch (e) {
       console.error('Failed to load photos.json', e);
-      el.innerHTML = '<p class="center">Loading photos…</p>';
+      document.getElementById('gallery').innerHTML = '<p class="center">Loading photos…</p>';
     }
   }
 
-  // helpers for tag URLs
+  // tag URL helpers
   function buildTagUrl(tags) {
     if (!tags.length) return '/';
     return '/?tags=' + encodeURIComponent(tags.join(','));
@@ -172,18 +168,20 @@
 
   renderGallery();
 
-  // Lightbox (unchanged) …
+  // Lightbox: target the inner image link
   document.addEventListener('click', e => {
-    const a = e.target.closest('a.card');
+    const a = e.target.closest('a.tile-link');
     if (!a) return;
     e.preventDefault();
-    currentIndex = parseInt(a.dataset.index, 10);
+    const card = a.closest('.card');
+    currentIndex = parseInt(card.dataset.index, 10);
     openLightbox(currentIndex);
   });
 
   function openLightbox(index) {
     const photo = galleryPhotos[index];
     if (!photo) return;
+
     const overlay = document.createElement('div');
     overlay.className = 'lightbox-overlay';
     overlay.setAttribute('role','dialog');
@@ -193,27 +191,33 @@
       position:fixed;inset:0;background:rgba(0,0,0,.92);
       display:flex;align-items:center;justify-content:center;z-index:9999;
     `;
+
     const closeBtn = document.createElement('div');
     closeBtn.className = 'lb-close';
     closeBtn.textContent = '×';
+
     const img = new Image();
     img.src = `/img/${photo.base}-2560.jpg`;
     img.alt = '';
     img.style = 'max-width:95vw;max-height:95vh;';
+
     const prevBtn = document.createElement('button');
     prevBtn.className = 'lb-arrow lb-prev';
     prevBtn.setAttribute('aria-label', 'Previous photo');
     prevBtn.innerHTML = '&#10094;';
+
     const nextBtn = document.createElement('button');
     nextBtn.className = 'lb-arrow lb-next';
     nextBtn.setAttribute('aria-label', 'Next photo');
     nextBtn.innerHTML = '&#10095;';
+
     overlay.appendChild(closeBtn);
     overlay.appendChild(prevBtn);
     overlay.appendChild(nextBtn);
     overlay.appendChild(img);
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
+
     const close = () => {
       overlay.remove();
       document.removeEventListener('keydown', keyHandler);
@@ -229,11 +233,13 @@
       if (ev.key === 'ArrowRight') step(1);
       if (ev.key === 'ArrowLeft') step(-1);
     };
+
     closeBtn.addEventListener('click', close);
     overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
     prevBtn.addEventListener('click', () => step(-1));
     nextBtn.addEventListener('click', () => step(1));
     document.addEventListener('keydown', keyHandler);
+
     overlay.focus();
   }
 </script>
