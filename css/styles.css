@@ -1,6 +1,6 @@
 /* ==================================================
    Chi Yuen Chung — Film Photography
-   Option A: Square mounts (consistent white border)
+   Clean grid + square print mounts + museum labels
    ================================================== */
 
 /* ---------- 1) Fonts ---------- */
@@ -8,16 +8,13 @@
 
 /* ---------- 2) Design tokens ---------- */
 :root{
-  /* Colors */
   --bg: #ffffff;
   --fg: #111111;
   --muted: #666666;
 
-  /* Layout */
   --page-max: 1200px;
-  --gap: 24px; /* space between cards */
+  --gap: 28px;                /* comfortable gallery spacing */
 
-  /* Type */
   --font-body: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   --font-caption: 'Lora', Georgia, serif;
 }
@@ -43,7 +40,7 @@ body{
   text-rendering:optimizeLegibility;
 }
 
-a{ color:inherit; text-decoration:none; }
+a{ color:inherit; }
 a:focus-visible, button:focus-visible{
   outline:2px solid #7aa7ff;
   outline-offset:2px;
@@ -72,53 +69,96 @@ header p{
   color:var(--muted);
   font-size:.98rem;
 }
-.brand{ border-bottom:1px solid transparent; }
+
+.brand{ text-decoration:none; border-bottom:1px solid transparent; }
 .brand:hover{ border-color: currentColor; }
 
-/* ---------- 5) Tag filter banner ---------- */
+/* ---------- 5) Tag filter banner (NOT in the grid) ---------- */
 .tag-filter{
   max-width: var(--page-max);
-  margin: 0 auto 12px;
+  margin: 0 auto 6px;
   padding: 0 16px;
 }
 .tag-filter-inner{
-  margin: 0 auto;
+  margin: 0 auto 10px;
   max-width: 820px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: .95rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:.95rem;
 }
 .tag-clear{
-  text-decoration: none;
-  border: 1px solid rgba(0,0,0,.14);
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: var(--muted);
+  text-decoration:none;
+  border:1px solid rgba(0,0,0,.14);
+  padding:2px 8px;
+  border-radius:999px;
+  color:var(--muted);
 }
 @media (prefers-color-scheme: dark){
-  .tag-clear{ border-color: rgba(255,255,255,.22); }
+  .tag-clear{ border-color:rgba(255,255,255,.22); }
 }
 
-/* ---------- 6) Grid ---------- */
+/* ---------- Tag pills (both in banner and on cards) ---------- */
+.tags{
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.tags li{ margin:0; padding:0; }
+
+.tag-pill{
+  display:inline-block;
+  font-size:.82rem;
+  line-height:1;
+  padding:6px 10px;
+  border-radius:999px;
+  text-decoration:none;
+  color:var(--fg);
+  border:1px solid rgba(0,0,0,.14);
+  background: rgba(0,0,0,.03);
+}
+.tag-pill:hover{ background: rgba(0,0,0,.06); }
+@media (prefers-color-scheme: dark){
+  .tag-pill{
+    color:var(--fg);
+    border-color:rgba(255,255,255,.22);
+    background:rgba(255,255,255,.06);
+  }
+  .tag-pill:hover{ background:rgba(255,255,255,.1); }
+}
+.tag-pill--solid{
+  background:#111; color:#fff; border-color:#111;
+}
+@media (prefers-color-scheme: dark){
+  .tag-pill--solid{ background:#e7e7e7; color:#0d0f12; border-color:#e7e7e7; }
+}
+
+/* ---------- 6) Grid (cards only) ---------- */
 .grid{
   max-width: var(--page-max);
   margin: 0 auto;
   padding: 0 16px 72px;
-  display: grid;
+  display:grid;
   gap: var(--gap);
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start;                 /* keep captions from collapsing rows */
 }
-@media (min-width:1100px){
-  .grid{ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+@media (min-width: 1100px){
+  .grid{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
 
 .card{
-  display:block; /* important for layout */
+  display:flex;
+  flex-direction:column;
+  text-decoration:none;
   color:inherit;
+  align-items:center;                 /* center label under tile */
 }
 
 /* ---------- 7) Square mount (consistent print border) ---------- */
@@ -126,44 +166,39 @@ header p{
   .square{
     aspect-ratio: 1 / 1;
     width:100%;
-    background:#fff;                 /* paper */
-    border:12px solid #fff;          /* print border */
+    background:#fff;                  /* paper */
+    border:12px solid #fff;           /* print border */
     border-radius:0;
     overflow:hidden;
     position:relative;
     box-shadow:0 8px 20px rgba(0,0,0,0.35);
     transition: transform .18s ease, box-shadow .18s ease;
 
-    /* center the image cleanly */
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
   }
   .square > img{
     max-width:100%;
     max-height:100%;
-    width:auto;
-    height:auto;
-    object-fit:contain;              /* keeps white border visible all around */
+    width:auto; height:auto;
+    object-fit:contain;               /* preserves original aspect with white border visible */
     display:block;
   }
 }
-/* Fallback when aspect-ratio isn’t supported */
+/* Fallback (older browsers) */
 @supports not (aspect-ratio: 1){
   .square{
     position:relative;
     width:100%;
-    padding-top:100%;                /* square */
+    padding-top:100%;
     background:#fff;
     border:12px solid #fff;
-    border-radius:0;
     overflow:hidden;
+    border-radius:0;
     box-shadow:0 8px 20px rgba(0,0,0,0.35);
     transition: transform .18s ease, box-shadow .18s ease;
   }
   .square > img{
-    position:absolute;
-    inset:12px;                      /* respect the border visually */
+    position:absolute; inset:12px;    /* respect the border visually */
     width:calc(100% - 24px);
     height:calc(100% - 24px);
     object-fit:contain;
@@ -183,19 +218,19 @@ header p{
   color:#fff;
   font-size:.9rem;
   letter-spacing:.15px;
-  opacity:0;
-  transition: opacity .2s ease;
+  opacity:0; transition: opacity .2s ease;
   pointer-events:none;
 }
 .card:hover .tile-overlay{ opacity:1; }
 
-/* ---------- 8) Museum-style label under each print ---------- */
+/* ---------- 8) Museum-style label ---------- */
 .museum-label{
   display:block;
-  margin:14px auto 0;
+  margin-top:14px;
   padding:10px 8px 2px;
   text-align:center;
-  max-width: 520px;                  /* prevents super-wide labels under big tiles */
+  width:100%;                         /* keep label width aligned to tile */
+  max-width: 600px;
 }
 
 .caption{
@@ -211,7 +246,7 @@ header p{
   font-size:1.02rem;
 }
 
-/* date pill next to titles */
+/* date pill beside title */
 .date-badge{
   display:inline-block;
   margin-left:.45rem;
@@ -240,7 +275,7 @@ header p{
   .museum-rule{ opacity:.24; }
 }
 
-/* ---------- 9) Stacked metadata (with emojis) ---------- */
+/* Stacked metadata (emojis) */
 .meta{
   margin:0;
   padding:0;
@@ -263,54 +298,7 @@ header p{
   gap:6px;
 }
 
-/* ---------- 10) Tag pills (on cards) ---------- */
-.tags{
-  margin: 10px 0 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-.tags li{ margin: 0; padding: 0; }
-
-.tag-pill{
-  display: inline-block;
-  font-size: .82rem;
-  line-height: 1;
-  padding: 6px 10px;
-  border-radius: 999px;
-  text-decoration: none;
-  color: var(--fg);
-  border: 1px solid rgba(0,0,0,.14);
-  background: rgba(0,0,0,.03);
-}
-.tag-pill:hover{ background: rgba(0,0,0,.06); }
-@media (prefers-color-scheme: dark){
-  .tag-pill{
-    color: var(--fg);
-    border-color: rgba(255,255,255,.22);
-    background: rgba(255,255,255,.06);
-  }
-  .tag-pill:hover{ background: rgba(255,255,255,.1); }
-}
-
-/* solid pill variant for the banner */
-.tag-pill--solid{
-  background: #111;
-  color: #fff;
-  border-color: #111;
-}
-@media (prefers-color-scheme: dark){
-  .tag-pill--solid{
-    background: #e7e7e7;
-    color: #0d0f12;
-    border-color: #e7e7e7;
-  }
-}
-
-/* ---------- 11) Lightbox ---------- */
+/* ---------- 9) Lightbox ---------- */
 .lightbox-overlay{ cursor: zoom-out; }
 
 /* Arrows */
@@ -345,15 +333,7 @@ header p{
   .lb-next{ right:16px; }
 }
 
-/* ---------- 12) Legacy helper (not used with museum label) ---------- */
-.caption--smallcaps{
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  font-size: .8rem;
-  opacity: .95;
-}
-
-/* ---------- 13) Lightbox close ---------- */
+/* Close */
 .lb-close{
   position:absolute;
   top:16px; right:20px;
@@ -364,4 +344,12 @@ header p{
   cursor:pointer;
   text-shadow: 0 2px 20px rgba(0,0,0,.45);
   user-select:none;
+}
+
+/* ---------- 10) Legacy small-caps (kept for safety) ---------- */
+.caption--smallcaps{
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: .8rem;
+  opacity: .95;
 }
