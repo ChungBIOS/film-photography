@@ -178,6 +178,9 @@ header p{ margin:0; color:var(--muted); font-size:.98rem; }
 .meta--stack{ display:flex; flex-direction:column; gap:4px; align-items:center; font-size:.92rem; }
 .meta-item{ white-space:nowrap; opacity:.95; display:inline-flex; align-items:center; gap:6px; }
 
+/* Make the image link block-level and inherit colors */
+.tile-link{ display:block; color:inherit; text-decoration:none; }
+
 /* ---------- Tag pills ---------- */
 .tags{
   margin:10px 0 0; padding:0; list-style:none;
