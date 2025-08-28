@@ -56,7 +56,11 @@
     "camera": "Leica III",
     "lens": "Summarit 50mm f/1.5",
     "film": "Kodak ColorPlus 200",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -120,7 +124,9 @@
     "camera": "Nikon F",
     "lens": "Nikkor 50mm f/2",
     "film": "Kodak ColorPlus 200",
-    "tags": [],
+    "tags": [
+      "color"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -211,7 +217,9 @@
     "camera": "Rolleiflex 3.5T",
     "film": "Ilford HP5 400",
     "tags": [
-      "B&W"
+      "B&W",
+      "portrait",
+      "street"
     ],
     "taken": "2025-08-26"
   },
@@ -287,7 +295,10 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Kodak Gold 200",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait"
+    ],
     "taken": "2025-08-24"
   },
   {
@@ -300,7 +311,9 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Kodak Gold 200",
-    "tags": [],
+    "tags": [
+      "color"
+    ],
     "taken": "2025-06-21"
   },
   {
@@ -313,7 +326,9 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Kodak Gold 200",
-    "tags": [],
+    "tags": [
+      "color"
+    ],
     "taken": "2025-08-24"
   }
 ]
