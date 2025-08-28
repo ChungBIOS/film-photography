@@ -250,3 +250,15 @@ header p{ margin:0; color:var(--muted); font-size:.98rem; }
   font-size:2.2rem; font-weight:700; line-height:1; color:#fff;
   cursor:pointer; text-shadow:0 2px 20px rgba(0,0,0,.45); user-select:none;
 }
+
+/* Center items inside each grid cell */
+.grid{
+  justify-items: center;      /* NEW */
+}
+
+/* Keep every card at a sane max width (also fixes the single-card case) */
+.card{
+  width: 100%;
+  max-width: 560px;           /* NEW: pick 520–600px to taste */
+  margin: 0 auto;             /* keep centered if the track is wider */
+}
