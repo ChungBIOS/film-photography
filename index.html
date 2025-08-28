@@ -12,13 +12,16 @@
   <meta property="og:description" content="35mm and medium-format">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chiyuenchung.com/">
-  <link rel="stylesheet" href="./css/styles.css?v=5">
+  <link rel="stylesheet" href="./css/styles.css?v=6">
 </head>
 <body>
   <header>
     <a class="brand" href="/"><h1>Chi Yuen Chung</h1></a>
     <p>35mm and medium-format</p>
   </header>
+
+  <!-- tag filter banner (only shown when ?tag=...) -->
+  <div id="tag-filter-bar" class="tag-filter" hidden></div>
 
   <main class="grid" id="gallery" aria-live="polite"></main>
 
@@ -30,17 +33,55 @@
     let galleryPhotos = [];
     let currentIndex = -1;
 
+    // helpers
+    const getParam = (name) => new URLSearchParams(location.search).get(name);
+    const norm = s => (s || "").toString().trim().toLowerCase();
+
     async function renderGallery() {
       const el = document.getElementById('gallery');
+      const tagBar = document.getElementById('tag-filter-bar');
+      const activeTagRaw = getParam('tag');
+      const activeTag = norm(activeTagRaw);
+
       try {
         const res = await fetch('/img/photos.json?v=' + Date.now());
-        const photos = await res.json();
+        const incoming = await res.json();
 
-        // newest-first by timestamp
+        // normalize tags from JSON (array or comma string)
+        const photos = incoming.map(p => {
+          let tags = [];
+          if (Array.isArray(p.tags)) tags = p.tags;
+          else if (p.tags) tags = String(p.tags).split(',').map(t => t.trim()).filter(Boolean);
+          return { ...p, tags };
+        });
+
+        // sort newest-first by commit ts/date (display date uses sheet "taken" if present)
         photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
-        galleryPhotos = photos;
 
-        const html = photos.map((p, idx) => {
+        // filter by ?tag= if present (case-insensitive)
+        const filtered = activeTag
+          ? photos.filter(p => (p.tags || []).some(t => norm(t) === activeTag))
+          : photos;
+
+        galleryPhotos = filtered;
+
+        // show/hide filter banner
+        if (activeTag) {
+          tagBar.hidden = false;
+          tagBar.innerHTML = `
+            <div class="tag-filter-inner">
+              <span>Showing tag:</span>
+              <span class="tag-pill tag-pill--solid">#${activeTagRaw}</span>
+              <a class="tag-clear" href="/">× Clear</a>
+            </div>
+          `;
+          document.title = `#${activeTagRaw} — Chi Yuen Chung`;
+        } else {
+          tagBar.hidden = true;
+          document.title = 'Chi Yuen Chung';
+        }
+
+        const html = filtered.map((p, idx) => {
           const base = p.base;
           const title = p.title || base;
           const alt = (p.alt || title || base).replace(/"/g, '&quot;');
@@ -50,8 +91,18 @@
           const lens   = p.lens   || '';
           const film   = p.film   || '';
           const place  = p.location || '';
-          const shot   = p.taken || '';   // from sheet
-          const commit = p.date || '';         // fallback from commit
+          const shot   = p.taken || '';      // preferred date from sheet
+          const commit = p.date  || '';      // fallback from commit
+
+          // tag pills
+          const tagPills = (p.tags && p.tags.length)
+            ? `<ul class="tags">` +
+                p.tags.map(t => {
+                  const href = '/?tag=' + encodeURIComponent(t);
+                  return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
+                }).join('') +
+              `</ul>`
+            : '';
 
           return `
             <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
@@ -66,24 +117,26 @@
                 ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
               </div>
 
-             <span class="museum-label">
-              <span class="caption">
-                <span class="caption-title">${title}</span>
-                ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` :
-                         (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : '')}
+              <span class="museum-label">
+                <span class="caption">
+                  <span class="caption-title">${title}</span>
+                  ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>` :
+                           (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : '')}
+                </span>
+
+                <span class="museum-rule" aria-hidden="true"></span>
+
+                ${(camera || lens || film || place) ? `
+                  <ul class="meta meta--stack">
+                    ${camera ? `<li class="meta-item" title="Camera">📷 ${camera}</li>` : ''}
+                    ${lens   ? `<li class="meta-item" title="Lens">🔭 ${lens}</li>` : ''}
+                    ${film   ? `<li class="meta-item" title="Film">🎞️ ${film}</li>` : ''}
+                    ${place  ? `<li class="meta-item" title="Location">📍 ${place}</li>` : ''}
+                  </ul>
+                ` : ''}
+
+                ${tagPills}
               </span>
-            
-              <span class="museum-rule" aria-hidden="true"></span>
-            
-              ${(camera || lens || film || place) ? `
-                <ul class="meta meta--stack">
-                  ${camera ? `<li class="meta-item" title="Camera">📷 ${camera}</li>` : ''}
-                  ${lens   ? `<li class="meta-item" title="Lens">🔭 ${lens}</li>` : ''}
-                  ${film   ? `<li class="meta-item" title="Film">🎞️ ${film}</li>` : ''}
-                  ${place  ? `<li class="meta-item" title="Location">📍 ${place}</li>` : ''}
-                </ul>
-              ` : ''}
-            </span>
             </a>
           `;
         }).join('');
