@@ -133,6 +133,16 @@ header p{ margin:0; color:var(--muted); font-size:.98rem; }
   box-shadow:0 12px 26px rgba(0,0,0,.45);
 }
 
+/* Make meta links look deliberate but not pill-y */
+.meta-link{
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+}
+.meta-link:hover{
+  border-bottom-style: solid;
+}
+
 /* Optional hover overlay on the tile */
 .tile-overlay{
   position:absolute; left:0; right:0; bottom:0;
