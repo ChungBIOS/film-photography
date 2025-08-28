@@ -1,6 +1,6 @@
 /* ==================================================
    Chi Yuen Chung — Film Photography
-   Square mounts + museum labels (fixed grid, no holes)
+   Square mounts + museum labels (tight, even grid)
    ================================================== */
 
 /* ---------- 1) Fonts ---------- */
@@ -14,7 +14,7 @@
   --muted: #666666;
 
   /* Layout */
-  --page-max: 1200px;
+  --page-max: 1220px;   /* fits 3 columns + gaps nicely */
   --gap: 24px;
 
   /* Type */
@@ -75,29 +75,44 @@ header p{
 .brand{ text-decoration:none; border-bottom:1px solid transparent; }
 .brand:hover{ border-color: currentColor; }
 
-/* ---------- 5) Grid (fill gaps) ---------- */
+/* ---------- 5) Grid (even tracks, no overflow) ---------- */
 .grid{
   max-width: var(--page-max);
   margin: 0 auto;
   padding: 0 16px 72px;
   display: grid;
   gap: var(--gap);
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-flow: row dense;     /* <= fills holes */
-  align-items: start;            /* <= top-align cards */
-}
-@media (min-width:1100px){
-  .grid{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+  /* Laptop / desktop: 3 columns that don’t collapse too small */
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  align-items: start;              /* top-align cards */
 }
 
-/* Each card is a flex column so heights behave */
+/* Large desktop — give a touch more breathing room */
+@media (min-width: 1400px){
+  :root{ --page-max: 1300px; }
+}
+
+/* Tablets: 2 columns */
+@media (max-width: 1000px){
+  .grid{ grid-template-columns: repeat(2, minmax(300px, 1fr)); }
+}
+
+/* Phones: 1 column */
+@media (max-width: 620px){
+  .grid{ grid-template-columns: minmax(280px, 1fr); }
+}
+
+/* Each card is a column-flex that never exceeds its grid track */
 .card{
   display:flex;
   flex-direction:column;
   text-decoration:none;
   color:inherit;
-  max-width: 560px;     /* prevents inner content from shrinking the column visually */
-  margin: 0 auto;       /* center within its grid cell if column wider */
+
+  width: 100%;          /* occupy the full grid track width */
+  max-width: 100%;      /* prevent centering “shrink” issues */
+  margin: 0;            /* grid handles spacing */
 }
 
 /* ---------- 6) Square mount (consistent print border) ---------- */
@@ -116,14 +131,14 @@ header p{
     display:flex;
     align-items:center;
     justify-content:center;
-    flex: 0 0 auto;          /* fixed block at top of card */
+    flex: 0 0 auto;
   }
   .square > img{
     max-width:100%;
     max-height:100%;
     width:auto;
     height:auto;
-    object-fit:contain;      /* preserves landscape/portrait with white borders */
+    object-fit:contain;    /* keeps white border visible on all sides */
     display:block;
   }
 }
@@ -175,7 +190,7 @@ header p{
   text-align:center;
   max-width: 520px;
   margin-left:auto; margin-right:auto;
-  flex: 0 0 auto;   /* content size only; don’t stretch */
+  flex: 0 0 auto;
 }
 
 .caption{
@@ -315,7 +330,6 @@ header p{
 /* ---------- 8) Lightbox ---------- */
 .lightbox-overlay{ cursor: zoom-out; }
 
-/* Arrows */
 .lb-arrow{
   position:absolute;
   top:50%;
@@ -347,7 +361,7 @@ header p{
   .lb-next{ right:16px; }
 }
 
-/* ---------- 9) Legacy caption class (kept) ---------- */
+/* Legacy caption helper (kept) */
 .caption--smallcaps{
   text-transform: uppercase;
   letter-spacing: .12em;
@@ -355,7 +369,7 @@ header p{
   opacity: .95;
 }
 
-/* ---------- 10) Lightbox close ---------- */
+/* Lightbox close */
 .lb-close{
   position:absolute;
   top:16px; right:20px;
