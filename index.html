@@ -12,7 +12,7 @@
   <meta property="og:description" content="35mm and medium-format">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chiyuenchung.com/">
-  <link rel="stylesheet" href="./css/styles.css?v=6">
+  <link rel="stylesheet" href="./css/styles.css?v=7">
 </head>
 <body>
   <header>
@@ -47,7 +47,7 @@
         const res = await fetch('/img/photos.json?v=' + Date.now());
         const incoming = await res.json();
 
-        // normalize tags from JSON (array or comma string)
+        // normalize tags
         const photos = incoming.map(p => {
           let tags = [];
           if (Array.isArray(p.tags)) tags = p.tags;
@@ -55,17 +55,17 @@
           return { ...p, tags };
         });
 
-        // sort newest-first by commit ts/date (display date uses sheet "taken" if present)
+        // newest-first by commit timestamp/date
         photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
 
-        // filter by ?tag= if present (case-insensitive)
+        // filter by ?tag=
         const filtered = activeTag
           ? photos.filter(p => (p.tags || []).some(t => norm(t) === activeTag))
           : photos;
 
         galleryPhotos = filtered;
 
-        // show/hide filter banner
+        // filter banner
         if (activeTag) {
           tagBar.hidden = false;
           tagBar.innerHTML = `
@@ -81,41 +81,39 @@
           document.title = 'Chi Yuen Chung';
         }
 
+        // cards
         const html = filtered.map((p, idx) => {
-          const base = p.base;
-          const title = p.title || base;
-          const alt = (p.alt || title || base).replace(/"/g, '&quot;');
-
-          // CSV-sourced metadata
-          const camera = p.camera || '';
-          const lens   = p.lens   || '';
-          const film   = p.film   || '';
+          const base   = p.base;
+          const title  = p.title || base;
+          const alt    = (p.alt || title || base).replace(/"/g, '&quot;');
+          const camera = p.camera   || '';
+          const lens   = p.lens     || '';
+          const film   = p.film     || '';
           const place  = p.location || '';
-          const shot   = p.taken || '';      // preferred date from sheet
-          const commit = p.date  || '';      // fallback from commit
+          const shot   = p.taken    || ''; // preferred date (sheet)
+          const commit = p.date     || ''; // fallback (commit)
 
-          // tag pills
           const tagPills = (p.tags && p.tags.length)
-            ? `<ul class="tags">` +
-                p.tags.map(t => {
-                  const href = '/?tag=' + encodeURIComponent(t);
-                  return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
-                }).join('') +
-              `</ul>`
+            ? `<ul class="tags">` + p.tags.map(t => {
+                const href = '/?tag=' + encodeURIComponent(t);
+                return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
+              }).join('') + `</ul>`
             : '';
 
           return `
-            <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
-              <div class="square">
-                <img
-                  src="/img/${base}-640.jpg"
-                  srcset="/img/${base}-640.jpg 640w,
-                          /img/${base}-1280.jpg 1280w,
-                          /img/${base}-2560.jpg 2560w"
-                  sizes="(max-width: 900px) 90vw, 480px"
-                  alt="${alt}" loading="lazy" />
-                ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
-              </div>
+            <article class="card" data-index="${idx}">
+              <a class="tile-link" href="/img/${base}-2560.jpg" aria-label="Open full-size image of ${alt}" data-index="${idx}">
+                <div class="square">
+                  <img
+                    src="/img/${base}-640.jpg"
+                    srcset="/img/${base}-640.jpg 640w,
+                            /img/${base}-1280.jpg 1280w,
+                            /img/${base}-2560.jpg 2560w"
+                    sizes="(max-width: 900px) 90vw, 480px"
+                    alt="${alt}" loading="lazy" />
+                  ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ''}
+                </div>
+              </a>
 
               <span class="museum-label">
                 <span class="caption">
@@ -137,7 +135,7 @@
 
                 ${tagPills}
               </span>
-            </a>
+            </article>
           `;
         }).join('');
 
@@ -149,13 +147,23 @@
     }
     renderGallery();
 
-    // Lightbox
-    document.addEventListener('click', e => {
-      const a = e.target.closest('a.card');
-      if (!a) return;
-      e.preventDefault();
-      currentIndex = parseInt(a.dataset.index, 10);
-      openLightbox(currentIndex);
+    // Lightbox open (click anywhere on the card except tag links)
+    document.addEventListener('click', (e) => {
+      const tagLink = e.target.closest('.tag-pill');
+      if (tagLink) return; // let tag links navigate
+
+      const tile = e.target.closest('.tile-link');
+      const card = e.target.closest('.card');
+
+      if (tile) {
+        e.preventDefault();
+        const idx = parseInt(tile.dataset.index || card?.dataset.index, 10);
+        if (!Number.isNaN(idx)) openLightbox(idx);
+      } else if (card) {
+        // clicking caption/meta also opens
+        const idx = parseInt(card.dataset.index, 10);
+        if (!Number.isNaN(idx)) openLightbox(idx);
+      }
     });
 
     function openLightbox(index) {
@@ -181,7 +189,6 @@
       img.alt = '';
       img.style = 'max-width:95vw;max-height:95vh;';
 
-      // arrows
       const prevBtn = document.createElement('button');
       prevBtn.className = 'lb-arrow lb-prev';
       prevBtn.setAttribute('aria-label', 'Previous photo');
@@ -192,10 +199,7 @@
       nextBtn.setAttribute('aria-label', 'Next photo');
       nextBtn.innerHTML = '&#10095;';
 
-      overlay.appendChild(closeBtn);
-      overlay.appendChild(prevBtn);
-      overlay.appendChild(nextBtn);
-      overlay.appendChild(img);
+      overlay.append(closeBtn, prevBtn, nextBtn, img);
       document.body.appendChild(overlay);
       document.body.style.overflow = 'hidden';
 
@@ -205,8 +209,8 @@
         document.body.style.overflow = '';
       };
       const step = delta => {
-        currentIndex = (currentIndex + delta + galleryPhotos.length) % galleryPhotos.length;
-        const p = galleryPhotos[currentIndex];
+        currentIndex = (index = (index + delta + galleryPhotos.length) % galleryPhotos.length);
+        const p = galleryPhotos[index];
         img.src = `/img/${p.base}-2560.jpg`;
       };
       const keyHandler = ev => {
