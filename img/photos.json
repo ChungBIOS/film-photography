@@ -9,7 +9,11 @@
     "camera": "Leica III",
     "lens": "Summitar 50mm f/2 orange filter",
     "film": "Ifford Delta 400",
-    "tags": [],
+    "tags": [
+      "B&W",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-24"
   },
   {
@@ -22,7 +26,9 @@
     "camera": "Leica III",
     "lens": "Summitar 50mm f/2 orange filter",
     "film": "Ifford Delta 400",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-27"
   },
   {
@@ -35,7 +41,9 @@
     "camera": "Leica III",
     "lens": "Summitar 50mm f/2 orange filter",
     "film": "Ifford Delta 400",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-27"
   },
   {
@@ -61,7 +69,11 @@
     "camera": "Leica III",
     "lens": "Summarit 50mm f/1.5",
     "film": "Kodak ColorPlus 200",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -74,7 +86,11 @@
     "camera": "Leica III",
     "lens": "Summarit 50mm f/1.5",
     "film": "Kodak ColorPlus 200",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -87,12 +103,16 @@
     "camera": "Nikon F",
     "lens": "Nikkor 50mm f/2",
     "film": "Kodak ColorPlus 200",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
     "base": "self I",
-    "title": "self I",
+    "title": "self i",
     "overlay": "self I",
     "alt": "self I",
     "date": "2025-08-26",
@@ -113,7 +133,11 @@
     "camera": "Nikon F",
     "lens": "Nikkor 50mm f/2",
     "film": "Kodak ColorPlus 200",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -126,7 +150,11 @@
     "camera": "Leica IIIg",
     "lens": "Summarit 50mm f/1.5",
     "film": "Ilford XP2 Super 400",
-    "tags": [],
+    "tags": [
+      "color",
+      "portrait",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -139,7 +167,9 @@
     "camera": "Leica IIIg",
     "lens": "Summarit 50mm f/1.5",
     "film": "Ilford XP2 Super 400",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -152,7 +182,9 @@
     "camera": "Leica IIIg",
     "lens": "Summarit 50mm f/1.5",
     "film": "Ilford XP2 Super 400",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -164,7 +196,9 @@
     "ts": "2025-08-26T09:45:31+01:00",
     "camera": "Rolleiflex 3.5T",
     "film": "Ilford FP4+125",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -176,7 +210,9 @@
     "ts": "2025-08-26T09:45:31+01:00",
     "camera": "Rolleiflex 3.5T",
     "film": "Ilford HP5 400",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -188,7 +224,10 @@
     "ts": "2025-08-26T09:41:11+01:00",
     "camera": "Rolleiflex 3.5T",
     "film": "Ilford FP4+125",
-    "tags": [],
+    "tags": [
+      "B&W",
+      "street"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -201,7 +240,10 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Ilford HP5 400",
-    "tags": [],
+    "tags": [
+      "B&W",
+      "portrait"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -214,7 +256,10 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Ilford HP5 400",
-    "tags": [],
+    "tags": [
+      "B&W",
+      "portrait"
+    ],
     "taken": "2025-08-26"
   },
   {
@@ -227,7 +272,9 @@
     "camera": "halina 35x",
     "lens": "Anastigmat 45mm f/3.5",
     "film": "Ilford HP5 400",
-    "tags": [],
+    "tags": [
+      "B&W"
+    ],
     "taken": "2025-08-26"
   },
   {
