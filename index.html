@@ -170,31 +170,33 @@
           </ul>` : "";
 
         return `
-          <a class="card" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
-            <div class="square">
-              <img
-                src="/img/${base}-640.jpg"
-                srcset="/img/${base}-640.jpg 640w,
-                        /img/${base}-1280.jpg 1280w,
-                        /img/${base}-2560.jpg 2560w"
-                sizes="(max-width: 900px) 90vw, 480px"
-                alt="${alt}" loading="lazy" />
-              ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ""}
-            </div>
+            <article class="card" data-index="${idx}">
+              <a class="tile-link" href="/img/${base}-2560.jpg" data-index="${idx}" aria-label="Open full-size image of ${alt}">
+                <div class="square">
+                  <img
+                    src="/img/${base}-640.jpg"
+                    srcset="/img/${base}-640.jpg 640w,
+                            /img/${base}-1280.jpg 1280w,
+                            /img/${base}-2560.jpg 2560w"
+                    sizes="(max-width: 900px) 90vw, 480px"
+                    alt="${alt}" loading="lazy" />
+                  ${p.overlay ? `<div class="tile-overlay">${p.overlay}</div>` : ""}
+                </div>
+              </a>
 
-            <span class="museum-label">
-              <span class="caption">
-                <span class="caption-title">${title}</span>
-                ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>`
-                       : (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : "")}
+              <span class="museum-label">
+                <span class="caption">
+                  <span class="caption-title">${title}</span>
+                  ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>`
+                         : (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : "")}
+                </span>
+                <span class="museum-rule" aria-hidden="true"></span>
+          
+                ${metaList}
+                ${tagPills}
               </span>
-              <span class="museum-rule" aria-hidden="true"></span>
-              ${metaList}
-              ${tagPills}
-            </span>
-          </a>
-        `;
-      }).join("");
+            </article>
+          `;
 
       el.innerHTML = html || '<p class="center">No photos yet.</p>';
     } catch(err){
@@ -206,8 +208,8 @@
   renderGallery();
 
   // ---------- Lightbox (unchanged) ----------
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a.card');
+   document.addEventListener('click', (e) => {
+    const a = e.target.closest('.tile-link');
     if (!a) return;
     e.preventDefault();
     currentIndex = parseInt(a.dataset.index, 10);
