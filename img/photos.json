@@ -1,17 +1,26 @@
 [
   {
+    "base": "that truck",
+    "title": "that truck",
+    "overlay": "that truck",
+    "alt": "that truck",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T14:57:04Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana",
+      "still"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
     "base": "rifugio II",
     "title": "rifugio II",
     "overlay": "rifugio II",
     "alt": "rifugio II",
     "date": "2025-12-09",
-    "ts": "2025-12-09T14:42:32Z",
-    "camera": "Rollei 35",
-    "film": "Porta 800",
-    "tags": [
-      "fontana"
-    ],
-    "taken": "2025-12-05"
+    "ts": "2025-12-09T14:42:32Z"
   },
   {
     "base": "rifugio I",
@@ -19,13 +28,7 @@
     "overlay": "rifugio I",
     "alt": "rifugio I",
     "date": "2025-12-09",
-    "ts": "2025-12-09T14:42:32Z",
-    "camera": "Rollei 35",
-    "film": "Porta 800",
-    "tags": [
-      "fontana"
-    ],
-    "taken": "2025-12-05"
+    "ts": "2025-12-09T14:42:32Z"
   },
   {
     "base": "hiking I",
@@ -33,13 +36,7 @@
     "overlay": "hiking I",
     "alt": "hiking I",
     "date": "2025-12-09",
-    "ts": "2025-12-09T14:42:32Z",
-    "camera": "Rollei 35",
-    "film": "Porta 800",
-    "tags": [
-      "fontana"
-    ],
-    "taken": "2025-12-05"
+    "ts": "2025-12-09T14:42:32Z"
   },
   {
     "base": "first supper",
@@ -51,7 +48,8 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana"
+      "fontana",
+      "portrait"
     ],
     "taken": "2025-12-05"
   },
@@ -65,7 +63,8 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana"
+      "fontana",
+      "portrait"
     ],
     "taken": "2025-12-05"
   },
