@@ -1,29 +1,23 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chi Yuen Chung</title>
-  <meta name="description" content="35mm and medium-format" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
-    rel="stylesheet">
+  <title>Fontana — Chi Yuen Chung</title>
+  <meta name="description" content="Fontana Event Photos" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" href="/favicon.ico">
-  <meta property="og:title" content="Chi Yuen Chung">
-  <meta property="og:description" content="35mm and medium-format">
+  <meta property="og:title" content="Fontana — Chi Yuen Chung">
+  <meta property="og:description" content="Fontana Event Photos">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://chiyuenchung.com/">
-  <link rel="stylesheet" href="./css/styles.css?v=7">
+  <meta property="og:url" content="https://chiyuenchung.com/fontana/">
+  <link rel="stylesheet" href="../css/styles.css?v=7">
 </head>
-
 <body>
   <header>
-    <a class="brand" href="/">
-      <h1>Chi Yuen Chung</h1>
-    </a>
-    <p>35mm and medium-format</p>
+    <a class="brand" href="/"><h1>Chi Yuen Chung</h1></a>
+    <p>Fontana Event</p>
   </header>
 
   <!-- Filter banner appears only when a facet is active -->
@@ -50,44 +44,45 @@
 
     const uniq = arr => [...new Set(arr)];
 
-    function buildURL(state) {
+    function buildURL(state){
       const qs = new URLSearchParams();
-      if (state.tags?.length) qs.set("tags", uniq(state.tags).join(","));
+      if (state.tags?.length)   qs.set("tags",   uniq(state.tags).join(","));
       if (state.camera?.length) qs.set("camera", uniq(state.camera).join(","));
-      if (state.lens?.length) qs.set("lens", uniq(state.lens).join(","));
-      if (state.film?.length) qs.set("film", uniq(state.film).join(","));
+      if (state.lens?.length)   qs.set("lens",   uniq(state.lens).join(","));
+      if (state.film?.length)   qs.set("film",   uniq(state.film).join(","));
       const s = qs.toString();
-      return s ? "/?" + s : "/";
+      // Relative URL for subfolder
+      return s ? "?" + s : "./";
     }
-    function addFacet(state, facet, value) {
+    function addFacet(state, facet, value){
       const next = JSON.parse(JSON.stringify(state));
       const v = norm(value);
       next[facet] = uniq([...(next[facet] || []), v]);
       return next;
     }
-    function removeFacet(state, facet, value) {
+    function removeFacet(state, facet, value){
       const next = JSON.parse(JSON.stringify(state));
       const v = norm(value);
       next[facet] = (next[facet] || []).filter(x => x !== v);
       return next;
     }
-    function readState() {
+    function readState(){
       const params = new URLSearchParams(location.search);
       return {
-        tags: getAll(params, "tags"),
+        tags:   getAll(params, "tags"),
         camera: getAll(params, "camera"),
-        lens: getAll(params, "lens"),
-        film: getAll(params, "film"),
+        lens:   getAll(params, "lens"),
+        film:   getAll(params, "film"),
       };
     }
 
     // ---------- render ----------
-    async function renderGallery() {
+    async function renderGallery(){
       const el = document.getElementById("gallery");
       const tagBar = document.getElementById("tag-filter-bar");
       const state = readState();
 
-      try {
+      try{
         const res = await fetch("/img/photos.json?v=" + Date.now());
         const incoming = await res.json();
 
@@ -100,32 +95,38 @@
         });
 
         // newest-first
-        photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
+        photos.sort((a,b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
 
-        // AND filter across all selected facets
+        // AND filter across all selected facets + HARDCODE "fontana"
         const filtered = photos.filter(p => {
-          const pTags = (p.tags || []).map(norm);
-          if (pTags.includes("fontana")) return false; // Exclude fontana event photos
+          const pTags   = (p.tags || []).map(norm);
+          
+          // HARD REQUIREMENT: Must have "fontana" tag
+          if (!pTags.includes("fontana")) return false;
+
           const pCamera = norm(p.camera);
-          const pLens = norm(p.lens);
-          const pFilm = norm(p.film);
-          if (state.tags.length && !state.tags.every(t => pTags.includes(t))) return false;
+          const pLens   = norm(p.lens);
+          const pFilm   = norm(p.film);
+          if (state.tags.length   && !state.tags.every(t => pTags.includes(t))) return false;
           if (state.camera.length && !state.camera.includes(pCamera)) return false;
-          if (state.lens.length && !state.lens.includes(pLens)) return false;
-          if (state.film.length && !state.film.includes(pFilm)) return false;
+          if (state.lens.length   && !state.lens.includes(pLens))     return false;
+          if (state.film.length   && !state.film.includes(pFilm))     return false;
           return true;
         });
 
         galleryPhotos = filtered;
 
         // banner chips (removable)
+        // Note: we don't show "fontana" as a removable chip because it's inherent to the page
+        const visibleTags = (state.tags || []).filter(t => t !== "fontana");
+        
         const chips = []
-          .concat((state.tags || []).map(v => ({ facet: "tags", label: "#" + v, v })))
-          .concat((state.camera || []).map(v => ({ facet: "camera", label: "📷 " + v, v })))
-          .concat((state.lens || []).map(v => ({ facet: "lens", label: "🔭 " + v, v })))
-          .concat((state.film || []).map(v => ({ facet: "film", label: "🎞️ " + v, v })));
+          .concat(visibleTags.map(v => ({facet:"tags",   label:"#"+v,  v})))
+          .concat((state.camera || []).map(v => ({facet:"camera", label:"📷 "+v, v})))
+          .concat((state.lens   || []).map(v => ({facet:"lens",   label:"🔭 "+v, v})))
+          .concat((state.film   || []).map(v => ({facet:"film",   label:"🎞️ "+v, v})));
 
-        if (chips.length) {
+        if (chips.length){
           tagBar.hidden = false;
           tagBar.innerHTML = `
             <div class="tag-filter-inner">
@@ -136,42 +137,43 @@
                   <a class="tag-clear" href="${buildURL(removeFacet(state, c.facet, c.v))}" aria-label="Remove ${c.label}">×</a>
                 </span>
               `).join("")}
-              <a class="tag-clear" href="/" aria-label="Clear all filters">Clear all</a>
+              <a class="tag-clear" href="./" aria-label="Clear all filters">Clear all</a>
             </div>
           `;
-          document.title = `Filters — Chi Yuen Chung`;
+          document.title = `Filters — Fontana — Chi Yuen Chung`;
         } else {
           tagBar.hidden = true;
-          document.title = "Chi Yuen Chung";
+          document.title = "Fontana — Chi Yuen Chung";
         }
 
         // cards
         const html = filtered.map((p, idx) => {
-          const base = p.base;
-          const title = p.title || base;
-          const alt = (p.alt || title || base).replace(/"/g, "&quot;");
+          const base   = p.base;
+          const title  = p.title || base;
+          const alt    = (p.alt || title || base).replace(/"/g, "&quot;");
           const camera = p.camera || "";
-          const lens = p.lens || "";
-          const film = p.film || "";
-          const place = p.location || "";
-          const shot = p.taken || "";
-          const commit = p.date || "";
+          const lens   = p.lens   || "";
+          const film   = p.film   || "";
+          const place  = p.location || "";
+          const shot   = p.taken || "";
+          const commit = p.date  || "";
 
           // tag pills (click to add tags)
           const tagPills = (p.tags && p.tags.length)
             ? `<ul class="tags">` + p.tags.map(t => {
-              const href = buildURL(addFacet(state, "tags", t));
-              return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
-            }).join("") + `</ul>`
+                if(t.toLowerCase() === 'fontana') return ""; // Don't verify fontana tag as a filter we can add/remove, since it's the base
+                const href = buildURL(addFacet(state, "tags", t));
+                return `<li><a class="tag-pill" href="${href}">#${t}</a></li>`;
+              }).join("") + `</ul>`
             : "";
 
           // meta with inline facet links
           const metaList = (camera || lens || film || place) ? `
             <ul class="meta meta--stack">
               ${camera ? `<li class="meta-item">📷 <a class="meta-link" href="${buildURL(addFacet(state, 'camera', camera))}">${camera}</a></li>` : ""}
-              ${lens ? `<li class="meta-item">🔭 <a class="meta-link" href="${buildURL(addFacet(state, 'lens', lens))}">${lens}</a></li>` : ""}
-              ${film ? `<li class="meta-item">🎞️ <a class="meta-link" href="${buildURL(addFacet(state, 'film', film))}">${film}</a></li>` : ""}
-              ${place ? `<li class="meta-item">📍 ${place}</li>` : ""}
+              ${lens   ? `<li class="meta-item">🔭 <a class="meta-link" href="${buildURL(addFacet(state, 'lens', lens))}">${lens}</a></li>`     : ""}
+              ${film   ? `<li class="meta-item">🎞️ <a class="meta-link" href="${buildURL(addFacet(state, 'film', film))}">${film}</a></li>`     : ""}
+              ${place  ? `<li class="meta-item">📍 ${place}</li>` : ""}
             </ul>` : "";
 
           return `
@@ -193,7 +195,7 @@
                 <span class="caption">
                   <span class="caption-title">${title}</span>
                   ${shot ? `<time class="date-badge" datetime="${shot}">${shot}</time>`
-              : (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : "")}
+                         : (commit ? `<time class="date-badge" datetime="${commit}">${commit}</time>` : "")}
                 </span>
                 <span class="museum-rule" aria-hidden="true"></span>
                 ${metaList}
@@ -203,8 +205,8 @@
           `;
         }).join("");  /* <-- close map + join */
 
-        el.innerHTML = html || '<p class="center">No photos yet.</p>';
-      } catch (err) {
+        el.innerHTML = html || '<p class="center">No Fontana photos found.</p>';
+      } catch(err){
         console.error("Failed to load photos.json", err);
         document.getElementById("gallery").innerHTML = '<p class="center">Loading photos…</p>';
       }
@@ -221,14 +223,14 @@
       openLightbox(currentIndex);
     });
 
-    function openLightbox(index) {
+    function openLightbox(index){
       const photo = galleryPhotos[index];
       if (!photo) return;
 
       const overlay = document.createElement('div');
       overlay.className = 'lightbox-overlay';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('role','dialog');
+      overlay.setAttribute('aria-modal','true');
       overlay.tabIndex = -1;
       overlay.style = `
         position:fixed;inset:0;background:rgba(0,0,0,.92);
@@ -287,5 +289,4 @@
     }
   </script>
 </body>
-
 </html>
