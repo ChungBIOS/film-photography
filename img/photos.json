@@ -1,5 +1,75 @@
 [
   {
+    "base": "rifugio II",
+    "title": "rifugio II",
+    "overlay": "rifugio II",
+    "alt": "rifugio II",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
+    "base": "rifugio I",
+    "title": "rifugio I",
+    "overlay": "rifugio I",
+    "alt": "rifugio I",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
+    "base": "hiking I",
+    "title": "hiking I",
+    "overlay": "hiking I",
+    "alt": "hiking I",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
+    "base": "first supper",
+    "title": "first supper",
+    "overlay": "first supper",
+    "alt": "first supper",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
+    "base": "ash + tigi",
+    "title": "ash + tigi",
+    "overlay": "ash + tigi",
+    "alt": "ash + tigi",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
     "base": "the chalet",
     "title": "the chalet",
     "overlay": "the chalet",
