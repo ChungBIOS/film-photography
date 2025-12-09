@@ -71,7 +71,7 @@ jobs:
           )
 
           # De-duplicate by stem, keeping newest
-          mapfile -t UNIQUE < <(printf "%s\n" "${LINES[@]}" | awk '!seen[$2]++')
+          mapfile -t UNIQUE < <(printf "%s\n" "${LINES[@]}" | awk '{ k=$0; sub(/^[^ ]+ +/, "", k); if (!seen[k]++) print $0 }')
 
           : > img/photos.json
           echo "[" >> img/photos.json
