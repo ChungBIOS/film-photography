@@ -1,5 +1,37 @@
 [
   {
+    "base": "preston I",
+    "title": "preston I",
+    "overlay": "preston I",
+    "alt": "preston I",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T15:07:03Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana",
+      "portrait",
+      "preston"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
+    "base": "liam I",
+    "title": "liam I",
+    "overlay": "liam I",
+    "alt": "liam I",
+    "date": "2025-12-09",
+    "ts": "2025-12-09T15:07:03Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana",
+      "portrait",
+      "liam"
+    ],
+    "taken": "2025-12-05"
+  },
+  {
     "base": "that truck",
     "title": "that truck",
     "overlay": "that truck",
@@ -20,7 +52,14 @@
     "overlay": "rifugio II",
     "alt": "rifugio II",
     "date": "2025-12-09",
-    "ts": "2025-12-09T14:42:32Z"
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana",
+      "portrait"
+    ],
+    "taken": "2025-12-05"
   },
   {
     "base": "rifugio I",
@@ -28,7 +67,14 @@
     "overlay": "rifugio I",
     "alt": "rifugio I",
     "date": "2025-12-09",
-    "ts": "2025-12-09T14:42:32Z"
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana",
+      "portrait"
+    ],
+    "taken": "2025-12-05"
   },
   {
     "base": "hiking I",
@@ -36,7 +82,14 @@
     "overlay": "hiking I",
     "alt": "hiking I",
     "date": "2025-12-09",
-    "ts": "2025-12-09T14:42:32Z"
+    "ts": "2025-12-09T14:42:32Z",
+    "camera": "Rollei 35",
+    "film": "Porta 800",
+    "tags": [
+      "fontana",
+      "portrait"
+    ],
+    "taken": "2025-12-05"
   },
   {
     "base": "first supper",
@@ -93,7 +146,8 @@
     "film": "Porta 800",
     "tags": [
       "fontana",
-      "portrait"
+      "portrait",
+      "ash"
     ],
     "taken": "2025-12-05"
   },
