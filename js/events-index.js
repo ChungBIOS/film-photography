@@ -42,27 +42,29 @@ async function renderEvents() {
     events.sort((a, b) => b.year.localeCompare(a.year));
 
     el.innerHTML = events.map(e => `
-      <a class="event-card" href="/events/${e.slug}/">
-        <div class="square">
-          <img
-            src="/img/${e.cover.base}-640.jpg"
-            srcset="/img/${e.cover.base}-640.jpg 640w,
-                    /img/${e.cover.base}-1280.jpg 1280w,
-                    /img/${e.cover.base}-2560.jpg 2560w"
-            sizes="(max-width: 900px) 90vw, 480px"
-            alt="${e.title} cover" loading="lazy" />
-        </div>
-        <span class="museum-label">
-          <span class="caption">
-            <span class="caption-title">${e.title}</span>
-            <time class="date-badge">${e.dateLabel}</time>
+      <article class="card event-card">
+        <a class="event-link" href="/events/${e.slug}/" aria-label="${e.title} — ${e.count} photos">
+          <div class="square">
+            <img
+              src="/img/${e.cover.base}-640.jpg"
+              srcset="/img/${e.cover.base}-640.jpg 640w,
+                      /img/${e.cover.base}-1280.jpg 1280w,
+                      /img/${e.cover.base}-2560.jpg 2560w"
+              sizes="(max-width: 900px) 90vw, 480px"
+              alt="${e.title} cover" loading="lazy" />
+          </div>
+          <span class="museum-label">
+            <span class="caption">
+              <span class="caption-title">${e.title}</span>
+              <time class="date-badge">${e.dateLabel}</time>
+            </span>
+            <span class="museum-rule" aria-hidden="true"></span>
+            <ul class="meta meta--stack">
+              <li class="meta-item">${e.count} photo${e.count === 1 ? '' : 's'}</li>
+            </ul>
           </span>
-          <span class="museum-rule" aria-hidden="true"></span>
-          <ul class="meta meta--stack">
-            <li class="meta-item">${e.count} photo${e.count === 1 ? '' : 's'}</li>
-          </ul>
-        </span>
-      </a>
+        </a>
+      </article>
     `).join('') || '<p class="center">No events yet.</p>';
   } catch (err) {
     console.error('Failed to load events', err);
