@@ -19,10 +19,18 @@ export async function renderGallery() {
     // newest-first
     photos.sort((a, b) => new Date(b.ts || b.date || 0) - new Date(a.ts || a.date || 0));
 
-    // AND filter across all selected facets; always exclude `fontana` event photos.
+    // If this page declares an event (via <meta name="event" content="...">),
+    // show only that event's photos. Otherwise it's the main gallery, which
+    // excludes any photo with an `event` field.
+    const eventName = document.querySelector('meta[name="event"]')?.getAttribute('content') || null;
+
     const filtered = photos.filter(p => {
+      if (eventName) {
+        if (p.event !== eventName) return false;
+      } else {
+        if (p.event) return false;
+      }
       const pTags = (p.tags || []).map(norm);
-      if (pTags.includes("fontana")) return false;
       const pCamera = norm(p.camera);
       const pLens = norm(p.lens);
       const pFilm = norm(p.film);
