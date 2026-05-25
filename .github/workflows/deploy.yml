@@ -48,6 +48,7 @@ jobs:
           cp -r css _site/
           [ -d js ] && cp -r js _site/ || true
           cp fontana/index.html _site/fontana/
+          [ -d events ] && cp -r events _site/ || true
           cp img/photos.json _site/img/
           cp CNAME _site/
           [ -f favicon.ico ] && cp favicon.ico _site/ || true

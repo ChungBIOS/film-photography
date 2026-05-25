@@ -9,12 +9,12 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "liam",
       "lachie"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "toast",
@@ -26,10 +26,10 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "the gang III",
@@ -41,10 +41,10 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "the gang II",
@@ -56,14 +56,14 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "ash",
       "liam",
       "lachie",
       "montag"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "preston + gio",
@@ -75,12 +75,12 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "preston",
       "gio"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "mountain IV",
@@ -92,11 +92,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "landscape"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "mountain III",
@@ -108,11 +108,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "landscape"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "montag II",
@@ -124,11 +124,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "montag"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "mike II",
@@ -140,11 +140,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "mike"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "mike + liam",
@@ -156,12 +156,12 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "mike",
       "liam"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "liam IV",
@@ -173,11 +173,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "liam"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "liam III",
@@ -189,11 +189,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "liam"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "liam + andy",
@@ -205,12 +205,12 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "liam",
       "andy"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "lachie III",
@@ -222,11 +222,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "lachie"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "lachie II",
@@ -238,11 +238,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "lachie"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "ash IV",
@@ -254,11 +254,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "ash"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "ash III",
@@ -270,11 +270,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "ash"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "ash II",
@@ -286,11 +286,11 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "ash"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "ash + simone",
@@ -302,12 +302,12 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "ash",
       "simone"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "aperol activation",
@@ -319,12 +319,12 @@
     "camera": "Rollei 35",
     "film": "Delta @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "preston",
       "mike"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "andy I",
@@ -336,11 +336,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W",
       "andy"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "simone + ash",
@@ -352,12 +352,12 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "ash",
       "simone",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "mountain II",
@@ -369,11 +369,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "landscape",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "mountain I",
@@ -385,11 +385,11 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "landscape",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "montag + lachie",
@@ -401,12 +401,12 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "montag",
       "lachie",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "krampus",
@@ -418,10 +418,10 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "hiking IV",
@@ -433,14 +433,14 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "landscape",
       "mike",
       "gio",
       "ash",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "hiking III",
@@ -452,14 +452,14 @@
     "camera": "Rollei 35",
     "film": "HP5 @ 800",
     "tags": [
-      "fontana",
       "landscape",
       "mike",
       "gio",
       "ash",
       "B&W"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "three stooges",
@@ -471,10 +471,10 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "preston II",
@@ -486,11 +486,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "preston"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "nik I",
@@ -502,11 +502,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "nik"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "montag I",
@@ -518,11 +518,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "montag"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "mike I",
@@ -534,11 +534,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "mike"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "liam II",
@@ -550,11 +550,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "liam"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "lachie I",
@@ -566,11 +566,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "lachie"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "gio I",
@@ -582,11 +582,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "gio"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "diplomacy",
@@ -598,10 +598,10 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "still"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "axe cake",
@@ -613,11 +613,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "ash"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "ash I",
@@ -629,11 +629,11 @@
     "camera": "Nikon F",
     "film": "Cinestill 800",
     "tags": [
-      "fontana",
       "portrait",
       "ash"
     ],
-    "taken": "2025-12-06"
+    "taken": "2025-12-06",
+    "event": "fontana_2025"
   },
   {
     "base": "snow yo",
@@ -645,11 +645,11 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait",
       "montag"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "hiking II",
@@ -661,13 +661,13 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait",
       "ash",
       "nik",
       "ally"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "preston I",
@@ -679,11 +679,11 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait",
       "preston"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "liam I",
@@ -695,11 +695,11 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait",
       "liam"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "that truck",
@@ -711,10 +711,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "still"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "rifugio II",
@@ -726,10 +726,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "rifugio I",
@@ -741,11 +741,11 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait",
       "ally"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "hiking I",
@@ -757,10 +757,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "first supper",
@@ -772,10 +772,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "ash + tigi",
@@ -787,10 +787,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "the chalet",
@@ -801,10 +801,9 @@
     "ts": "2025-12-09T14:09:28Z",
     "camera": "Rollei 35",
     "film": "Porta 800",
-    "tags": [
-      "fontana"
-    ],
-    "taken": "2025-12-05"
+    "tags": [],
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "the chaffeur",
@@ -816,11 +815,11 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait",
       "ash"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "the cake",
@@ -832,10 +831,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "still"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "the gang",
@@ -847,10 +846,10 @@
     "camera": "Rollei 35",
     "film": "Porta 800",
     "tags": [
-      "fontana",
       "portrait"
     ],
-    "taken": "2025-12-05"
+    "taken": "2025-12-05",
+    "event": "fontana_2025"
   },
   {
     "base": "bothered",
@@ -1183,5 +1182,197 @@
       "color"
     ],
     "taken": "2025-06-21"
+  },
+  {
+    "base": "wild-2026-01",
+    "title": "wild 01",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-02",
+    "title": "wild 02",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-03",
+    "title": "wild 03",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-04",
+    "title": "wild 04",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-05",
+    "title": "wild 05",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-06",
+    "title": "wild 06",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-07",
+    "title": "wild 07",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-08",
+    "title": "wild 08",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-09",
+    "title": "wild 09",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-10",
+    "title": "wild 10",
+    "alt": "Wild, 2026-05-22",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-22",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Kodak Gold 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-11",
+    "title": "wild 11",
+    "alt": "Wild, 2026-05-23",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-23",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Fuji 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
+  },
+  {
+    "base": "wild-2026-12",
+    "title": "wild 12",
+    "alt": "Wild, 2026-05-23",
+    "date": "2026-05-25",
+    "ts": "2026-05-25T18:20:59Z",
+    "taken": "2026-05-23",
+    "camera": "Leica M3",
+    "lens": "Summarit 50mm f/1.5",
+    "film": "Fuji 200",
+    "location": "Kent",
+    "event": "wild_2026",
+    "tags": [
+      "colour"
+    ]
   }
 ]
