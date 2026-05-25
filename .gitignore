@@ -1,2 +1,11 @@
 .DS_Store
 **/.DS_Store
+
+# Generated image variants — created at build time, never committed.
+# Source images live in img/originals/.
+img/*-640.jpg
+img/*-1280.jpg
+img/*-2560.jpg
+
+# Local build output
+_site/

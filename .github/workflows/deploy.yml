@@ -1,0 +1,69 @@
+name: Build and deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
+      - name: Build _site
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob nocaseglob
+
+          mkdir -p _site/img _site/fontana
+
+          # Resize each original into 640/1280/2560 directly in _site/img
+          for f in img/originals/*.{jpg,jpeg,JPG,JPEG}; do
+            [ -e "$f" ] || continue
+            stem="$(basename "${f%.*}")"
+            for size in 640 1280 2560; do
+              convert "$f" -auto-orient -strip -resize "${size}x${size}>" -quality 88 "_site/img/${stem}-${size}.jpg"
+            done
+          done
+
+          # Copy static files
+          cp index.html _site/
+          cp -r css _site/
+          [ -d js ] && cp -r js _site/ || true
+          cp fontana/index.html _site/fontana/
+          cp img/photos.json _site/img/
+          cp CNAME _site/
+          [ -f favicon.ico ] && cp favicon.ico _site/ || true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
